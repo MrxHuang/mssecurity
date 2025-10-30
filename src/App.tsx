@@ -11,6 +11,15 @@ import SessionsList from './features/sessions/SessionsList';
 import SessionEdit from './features/sessions/SessionEdit';
 import UserRolesList from './features/user-roles/UserRolesList';
 import UserRoleEdit from './features/user-roles/UserRoleEdit';
+import AddressesList from './features/addresses/AddressesList';
+import DigitalSignaturesList from './features/digital-signatures/DigitalSignaturesList';
+import DevicesList from './features/devices/DevicesList';
+import PasswordsList from './features/passwords/PasswordsList';
+import SecurityQuestionsList from './features/security-questions/SecurityQuestionsList';
+import AnswersList from './features/answers/AnswersList';
+import RolesList from './features/roles/RolesList';
+import PermissionsList from './features/permissions/PermissionsList';
+import RolePermissionsList from './features/role-permissions/RolePermissionsList';
 
 function App() {
   return (
@@ -88,6 +97,15 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/addresses" element={<ProtectedRoute><AddressesList /></ProtectedRoute>} />
+      <Route path="/digital-signatures" element={<ProtectedRoute><DigitalSignaturesList /></ProtectedRoute>} />
+      <Route path="/devices" element={<ProtectedRoute><DevicesList /></ProtectedRoute>} />
+      <Route path="/passwords" element={<ProtectedRoute><PasswordsList /></ProtectedRoute>} />
+      <Route path="/security-questions" element={<ProtectedRoute><SecurityQuestionsList /></ProtectedRoute>} />
+      <Route path="/answers" element={<ProtectedRoute><AnswersList /></ProtectedRoute>} />
+      <Route path="/roles" element={<ProtectedRoute><RolesList /></ProtectedRoute>} />
+      <Route path="/permissions" element={<ProtectedRoute><PermissionsList /></ProtectedRoute>} />
+      <Route path="/role-permissions" element={<ProtectedRoute><RolePermissionsList /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

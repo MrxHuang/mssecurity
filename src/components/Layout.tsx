@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import UiLibrarySwitcher from './UiLibrarySwitcher';
 import { useUiLibrary } from '../context/UiLibraryContext';
-import { LayoutDashboard, Users, FileText, Lock, Shield, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, Lock, Shield, LogOut, MapPin, PenTool, Monitor, Key, HelpCircle, MessageSquare, CheckSquare } from 'lucide-react';
 
 type Props = {
   children: React.ReactNode;
@@ -20,6 +20,15 @@ const Layout: React.FC<Props> = ({ children }) => {
     { path: '/profiles', label: 'Perfiles', icon: FileText },
     { path: '/sessions', label: 'Sesiones', icon: Lock },
     { path: '/user-roles', label: 'Roles', icon: Shield },
+    { path: '/addresses', label: 'Direcciones', icon: MapPin },
+    { path: '/digital-signatures', label: 'Firmas', icon: PenTool },
+    { path: '/devices', label: 'Dispositivos', icon: Monitor },
+    { path: '/passwords', label: 'Contraseñas', icon: Key },
+    { path: '/security-questions', label: 'Preguntas', icon: HelpCircle },
+    { path: '/answers', label: 'Respuestas', icon: MessageSquare },
+    { path: '/roles', label: 'Roles (cat.)', icon: Shield },
+    { path: '/permissions', label: 'Permisos', icon: CheckSquare },
+    { path: '/role-permissions', label: 'Rol ↔ Permiso', icon: CheckSquare },
   ];
 
   const isActive = (path: string) => {
