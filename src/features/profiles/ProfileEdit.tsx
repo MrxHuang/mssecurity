@@ -44,17 +44,11 @@ const ProfileEdit: React.FC = () => {
         return;
       }
       
-      const formData = new FormData();
-      formData.append('phone', value.phone.trim());
-      
+      const payload = { phone: value.phone.trim(), photo: value.photo?.trim() };
       if (isNew) {
-        await apiClient.post(`/api/profiles/user/${value.user_id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        await apiClient.post(`/api/profiles/user/${value.user_id}`, payload);
       } else {
-        await apiClient.put(`/api/profiles/${id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        await apiClient.put(`/api/profiles/${id}`, payload);
       }
       navigate('/profiles');
     } catch (err: any) {
@@ -83,7 +77,7 @@ const ProfileEdit: React.FC = () => {
       fields={[
         { name: 'user_id', label: 'Usuario ID', type: 'number' as const, required: true, placeholder: 'ID del usuario', disabled: !isNew },
         { name: 'phone', label: 'Teléfono', type: 'text' as const, required: true, placeholder: '+57 300 123 4567' },
-        ...(isNew ? [] : [{ name: 'photo', label: 'Foto Actual (solo lectura)', type: 'text' as const, required: false, disabled: true }])
+        { name: 'photo', label: 'Foto (texto o URL)', type: 'text' as const, required: false, placeholder: 'user_3.jpg o https://…' }
       ]}
       value={value}
       onChange={setValue}

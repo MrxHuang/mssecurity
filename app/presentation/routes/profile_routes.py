@@ -27,16 +27,16 @@ def get_profile_by_user(user_id):
 
 @profile_bp.route('/user/<int:user_id>', methods=['POST'])
 def create_profile(user_id):
-    """Create a new profile for a user"""
-    data = request.form.to_dict()
+    """Create a new profile for a user. Accepts JSON or form-data. Photo can be a file or a text path/url."""
+    data = request.get_json(silent=True) or request.form.to_dict()
     photo = request.files.get('photo')
     result, status_code = ProfileController.create(user_id, data, photo)
     return jsonify(result), status_code
 
 @profile_bp.route('/<int:profile_id>', methods=['PUT'])
 def update_profile(profile_id):
-    """Update a profile"""
-    data = request.form.to_dict()
+    """Update a profile. Accepts JSON or form-data. Photo can be a file or a text path/url."""
+    data = request.get_json(silent=True) or request.form.to_dict()
     photo = request.files.get('photo')
     result, status_code = ProfileController.update(profile_id, data, photo)
     return jsonify(result), status_code

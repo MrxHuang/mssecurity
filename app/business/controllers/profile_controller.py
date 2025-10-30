@@ -59,6 +59,9 @@ class ProfileController:
                 photo_path = os.path.join('profiles', filename)
                 photo_path = photo_path.replace('\\', '/')
                 photo.save(os.path.join(current_app.config['UPLOAD_FOLDER'], photo_path))
+            elif data.get('photo'):
+                # Allow plain text path/url without uploading a file
+                photo_path = data.get('photo')
             
             new_profile = Profile(
                 user_id=user_id,
@@ -98,6 +101,9 @@ class ProfileController:
                 photo_path = photo_path.replace('\\', '/')
                 photo.save(os.path.join(current_app.config['UPLOAD_FOLDER'], photo_path))
                 profile.photo = photo_path
+            elif 'photo' in data:
+                # Update photo as plain text path/url
+                profile.photo = data.get('photo')
                 
             db.session.commit()
             return profile.to_dict(), 200
