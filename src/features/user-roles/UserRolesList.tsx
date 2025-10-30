@@ -1,0 +1,77 @@
+import React, { useEffect, useState } from 'react';
+import apiClient from '../../lib/api';
+import GenericList from '../../components/generic/GenericList';
+
+type UserRole = {
+  id: string;
+  user_id: number;
+  role_id: number;
+  startAt: string;
+  endAt?: string;
+};
+
+const UserRolesList: React.FC = () => {
+  const [rows, setRows] = useState<UserRole[]>([]);
+
+  const load = async () => {
+    try {
+      const { data } = await apiClient.get('/api/user-roles/');
+      setRows(data);
+    } catch (err) {
+      alert('Error al cargar las asignaciones de roles');
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleDelete = async (row: UserRole) => {
+    if (!confirm('¿Eliminar esta asignación usuario-rol?')) return;
+    try {
+      await apiClient.delete(`/api/user-roles/${row.id}`);
+      await load();
+    } catch (err) {
+      alert('Error al eliminar la asignación');
+    }
+  };
+
+  return (
+    <GenericList
+      title="Asignación de Roles"
+      subtitle={`${rows.length} ${rows.length === 1 ? 'asignación' : 'asignaciones'} • Relación N:N entre Usuarios y Roles`}
+      data={rows}
+      columns={[
+        { key: 'id', label: 'ID', render: (row) => (
+          <span style={{ fontFamily: 'monospace' }}>{row.id.substring(0, 8)}...</span>
+        )},
+        { key: 'user_id', label: 'Usuario', render: (row) => `Usuario #${row.user_id}` },
+        { key: 'role_id', label: 'Rol', render: (row) => `Rol #${row.role_id}` },
+        { key: 'startAt', label: 'Inicio', render: (row) => {
+          if (!row.startAt) return '-';
+          try {
+            const dateStr = row.startAt.split('T')[0];
+            const [year, month, day] = dateStr.split('-');
+            return `${day}/${month}/${year}`;
+          } catch {
+            return row.startAt;
+          }
+        }},
+        { key: 'endAt', label: 'Fin', render: (row) => {
+          if (!row.endAt) return '-';
+          try {
+            const dateStr = row.endAt.split('T')[0];
+            const [year, month, day] = dateStr.split('-');
+            return `${day}/${month}/${year}`;
+          } catch {
+            return row.endAt;
+          }
+        }}
+      ]}
+      onDelete={handleDelete}
+      createPath="/user-roles/new"
+      editPath={(userRole) => `/user-roles/${userRole.id}`}
+      emptyMessage="No hay asignaciones de roles"
+    />
+  );
+};
+
+export default UserRolesList;
