@@ -36,18 +36,18 @@ const ProfileUpdateMock: React.FC = () => {
 
   return (
     <GenericForm
-      title={'FBC - Profile'}
-      subtitle={"Editar información del perfil"}
+      title={'Actualizar Perfil'}
+      subtitle="Modificar información del perfil"
       fields={[
-        { name: 'phone', label: 'Phone', type: 'text' as const, required: true },
-        { name: 'photo', label: 'Photo', type: 'text' as const, required: false, placeholder: 'ruta o URL' },
+        { name: 'phone', label: 'Teléfono', type: 'text' as const, required: true },
+        { name: 'photo', label: 'Foto', type: 'text' as const, required: false, placeholder: 'ruta o URL' },
       ]}
       value={value}
       onChange={setValue}
       onSubmit={save}
       onCancel={() => navigate(`/profile/${id}`)}
       isNew={isNew}
-      submitLabel={'Update'}
+      submitLabel={'Actualizar'}
     />
   );
 };

@@ -80,7 +80,7 @@ const AddressCreateMock: React.FC = () => {
     <Layout>
       <div style={{ maxWidth: '860px', margin: '0 auto' }}>
         <div style={{ ...cardStyle, padding: '24px' }}>
-          <h2 style={{ margin: '0 0 16px 0' }}>FBC - Dirección</h2>
+          <h2 style={{ margin: '0 0 16px 0' }}>Crear Dirección</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 3fr', gap: '24px', alignItems: 'start' }}>
             <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e5e5' }}>
               {/* Ejemplo: usa un iframe simple de Google Maps o una imagen estática */}

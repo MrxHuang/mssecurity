@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../Layout';
 import { useUiLibrary } from '../../context/UiLibraryContext';
 import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Card, CardHeader, CardContent, Button, Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
 
 type Column<T> = {
   key: keyof T | string;
@@ -34,217 +35,266 @@ function GenericList<T extends { id: string | number }>({
   const navigate = useNavigate();
   const { library } = useUiLibrary();
 
-  const containerStyle = library === 'bootstrap' 
-    ? { background: '#fff', border: '1px solid #dee2e6', borderRadius: '8px', overflow: 'hidden' }
-    : library === 'mui'
-    ? { background: '#fff', border: 'none', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }
-    : { background: '#fff', border: '2px solid #e5e5e5', borderRadius: '12px', overflow: 'hidden' };
+  const renderCreateButton = () => {
+    if (library === 'mui') {
+      return (
+        <Button
+          variant="contained"
+          startIcon={<Plus size={18} />}
+          onClick={() => navigate(createPath)}
+          sx={{ textTransform: 'uppercase' }}
+        >
+          {title.split(' ')[0]}
+        </Button>
+      );
+    }
 
-  const buttonStyle = library === 'bootstrap'
-    ? { padding: '10px 20px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', transition: 'all 0.2s' }
-    : library === 'mui'
-    ? { padding: '10px 20px', background: '#1976d2', color: '#fff', border: 'none', borderRadius: '20px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', transition: 'all 0.2s', textTransform: 'uppercase' as const }
-    : { padding: '10px 20px', background: '#1a1a1a', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', transition: 'all 0.2s' };
+    if (library === 'bootstrap') {
+      return (
+        <button
+          className="btn btn-success d-flex align-items-center gap-2"
+          onClick={() => navigate(createPath)}
+        >
+          <Plus size={16} />
+          Crear {title.split(' ')[0]}
+        </button>
+      );
+    }
 
-  const thStyle = (align: 'left' | 'right' = 'left') => ({
-    padding: library === 'mui' ? '16px 24px' : '12px 24px',
-    textAlign: align,
-    fontSize: library === 'bootstrap' ? '13px' : '12px',
-    fontWeight: library === 'mui' ? '700' : '600',
-    color: library === 'bootstrap' ? '#495057' : library === 'mui' ? '#1976d2' : '#666',
-    textTransform: 'uppercase' as const,
-    letterSpacing: library === 'bootstrap' ? '0' : '0.5px'
-  });
+    // Tailwind
+    return (
+      <button
+        className="px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center gap-2"
+        onClick={() => navigate(createPath)}
+      >
+        <Plus size={16} />
+        Crear {title.split(' ')[0]}
+      </button>
+    );
+  };
 
-  return (
-    <Layout>
-      <div style={containerStyle}>
-        {/* Header */}
-        <div style={{
-          padding: '20px 24px',
-          borderBottom: '1px solid #e5e5e5',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div>
-            <h3 style={{
-              margin: 0,
-              fontSize: '18px',
-              fontWeight: '600',
-              color: '#1a1a1a',
-              letterSpacing: '-0.3px'
-            }}>
-              {title}
-            </h3>
-            <p style={{
-              margin: '4px 0 0 0',
-              fontSize: '13px',
-              color: '#666'
-            }}>
-              {subtitle}
-            </p>
-          </div>
-          <button
-            onClick={() => navigate(createPath)}
-            style={{
-              ...buttonStyle,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-            onMouseEnter={(e) => {
-              if (library === 'bootstrap') {
-                e.currentTarget.style.background = '#218838';
-              } else if (library === 'mui') {
-                e.currentTarget.style.background = '#1565c0';
-              } else {
-                e.currentTarget.style.background = '#2a2a2a';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (library === 'bootstrap') {
-                e.currentTarget.style.background = '#28a745';
-              } else if (library === 'mui') {
-                e.currentTarget.style.background = '#1976d2';
-              } else {
-                e.currentTarget.style.background = '#1a1a1a';
-              }
-            }}
+  const renderActions = (row: T) => {
+    if (library === 'mui') {
+      return (
+        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+          <IconButton
+            size="small"
+            color="primary"
+            onClick={() => navigate(editPath(row))}
           >
-            <Plus size={16} />
-            {library === 'mui' ? title.split(' ')[0] : `Crear ${title.split(' ')[0]}`}
+            <Edit size={16} />
+          </IconButton>
+          <IconButton
+            size="small"
+            color="error"
+            onClick={() => onDelete(row)}
+          >
+            <Trash2 size={16} />
+          </IconButton>
+        </Box>
+      );
+    }
+
+    if (library === 'bootstrap') {
+      return (
+        <div className="d-flex gap-2 justify-content-end">
+          <button
+            className="btn btn-sm btn-primary d-flex align-items-center gap-1"
+            onClick={() => navigate(editPath(row))}
+          >
+            <Edit size={14} />
+            Editar
+          </button>
+          <button
+            className="btn btn-sm btn-danger d-flex align-items-center gap-1"
+            onClick={() => onDelete(row)}
+          >
+            <Trash2 size={14} />
+            Eliminar
           </button>
         </div>
+      );
+    }
 
-        {/* Table */}
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse'
-          }}>
-            <thead>
-              <tr style={{ background: library === 'bootstrap' ? '#e9ecef' : library === 'mui' ? '#f5f5f5' : '#fafafa' }}>
-                {columns.map((col, idx) => (
-                  <th key={String(col.key)} style={thStyle(idx === columns.length - 1 ? 'right' : 'left')}>
+    // Tailwind
+    return (
+      <div className="flex gap-2 justify-end">
+        <button
+          className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm font-medium transition-colors flex items-center gap-1"
+          onClick={() => navigate(editPath(row))}
+        >
+          <Edit size={14} />
+          Editar
+        </button>
+        <button
+          className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-md text-sm font-medium transition-colors flex items-center gap-1"
+          onClick={() => onDelete(row)}
+        >
+          <Trash2 size={14} />
+          Eliminar
+        </button>
+      </div>
+    );
+  };
+
+  if (library === 'mui') {
+    return (
+      <Layout>
+        <Card>
+          <CardHeader
+            title={title}
+            subheader={subtitle}
+            action={renderCreateButton()}
+            titleTypographyProps={{ variant: 'h5', fontWeight: 600 }}
+            subheaderTypographyProps={{ variant: 'body2' }}
+          />
+          <CardContent>
+            <TableContainer component={Paper} elevation={0}>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                    {columns.map((col) => (
+                      <TableCell key={String(col.key)} sx={{ fontWeight: 700, textTransform: 'uppercase', color: '#1976d2' }}>
+                        {col.label}
+                      </TableCell>
+                    ))}
+                    <TableCell align="right" sx={{ fontWeight: 700, textTransform: 'uppercase', color: '#1976d2' }}>
+                      Acciones
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={columns.length + 1} align="center" sx={{ py: 6 }}>
+                        <Typography variant="body2" color="text.secondary">
+                          {emptyMessage}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    data.map((row) => (
+                      <TableRow key={row.id} hover>
+                        {columns.map((col) => (
+                          <TableCell key={String(col.key)}>
+                            {col.render ? col.render(row) : String(row[col.key as keyof T] || '')}
+                          </TableCell>
+                        ))}
+                        <TableCell align="right">
+                          {renderActions(row)}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CardContent>
+        </Card>
+      </Layout>
+    );
+  }
+
+  if (library === 'bootstrap') {
+    return (
+      <Layout>
+        <div className="card">
+          <div className="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h5 className="card-title mb-1">{title}</h5>
+              <p className="card-subtitle text-muted mb-0 small">{subtitle}</p>
+            </div>
+            {renderCreateButton()}
+          </div>
+          <div className="card-body p-0">
+            <div className="table-responsive">
+              <table className="table table-hover mb-0">
+                <thead className="table-light">
+                  <tr>
+                    {columns.map((col) => (
+                      <th key={String(col.key)}>{col.label}</th>
+                    ))}
+                    <th className="text-end">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.length === 0 ? (
+                    <tr>
+                      <td colSpan={columns.length + 1} className="text-center py-5 text-muted">
+                        {emptyMessage}
+                      </td>
+                    </tr>
+                  ) : (
+                    data.map((row) => (
+                      <tr key={row.id}>
+                        {columns.map((col) => (
+                          <td key={String(col.key)}>
+                            {col.render ? col.render(row) : String(row[col.key as keyof T] || '')}
+                          </td>
+                        ))}
+                        <td className="text-end">{renderActions(row)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Tailwind
+  return (
+    <Layout>
+      <div className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-1">{title}</h3>
+            <p className="text-sm text-gray-600">{subtitle}</p>
+          </div>
+          {renderCreateButton()}
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                {columns.map((col) => (
+                  <th key={String(col.key)} className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     {col.label}
                   </th>
                 ))}
-                <th style={thStyle('right')}>Acciones</th>
+                <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Acciones
+                </th>
               </tr>
             </thead>
-            <tbody>
-              {data.map((row) => (
-                <tr
-                  key={row.id}
-                  style={{
-                    borderTop: '1px solid #f0f0f0',
-                    transition: 'background 0.15s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#fafafa';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                  }}
-                >
-                  {columns.map((col) => (
-                    <td key={String(col.key)} style={{
-                      padding: '16px 24px',
-                      fontSize: '14px',
-                      color: col.key === 'id' ? '#666' : '#1a1a1a',
-                      fontWeight: col.key === 'id' ? '400' : '500'
-                    }}>
-                      {col.render ? col.render(row) : String(row[col.key as keyof T] || '')}
-                    </td>
-                  ))}
-                  <td style={{
-                    padding: '16px 24px',
-                    textAlign: 'right'
-                  }}>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button
-                        onClick={() => navigate(editPath(row))}
-                        style={{
-                          padding: library === 'mui' ? '8px 16px' : '6px 12px',
-                          background: library === 'bootstrap' ? '#007bff' : library === 'mui' ? '#1976d2' : '#f0f0f0',
-                          border: library === 'bootstrap' || library === 'mui' ? 'none' : '1px solid #e5e5e5',
-                          borderRadius: library === 'mui' ? '16px' : '6px',
-                          fontSize: '13px',
-                          color: library === 'bootstrap' || library === 'mui' ? '#fff' : '#1a1a1a',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          fontWeight: library === 'bootstrap' ? '600' : '400',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (library === 'bootstrap') e.currentTarget.style.background = '#0056b3';
-                          else if (library === 'mui') e.currentTarget.style.background = '#1565c0';
-                          else e.currentTarget.style.background = '#e5e5e5';
-                        }}
-                        onMouseLeave={(e) => {
-                          if (library === 'bootstrap') e.currentTarget.style.background = '#007bff';
-                          else if (library === 'mui') e.currentTarget.style.background = '#1976d2';
-                          else e.currentTarget.style.background = '#f0f0f0';
-                        }}
-                      >
-                        <Edit size={14} />
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => onDelete(row)}
-                        style={{
-                          padding: library === 'mui' ? '8px 16px' : '6px 12px',
-                          background: library === 'bootstrap' ? '#dc3545' : library === 'mui' ? '#d32f2f' : '#fff',
-                          border: library === 'bootstrap' || library === 'mui' ? 'none' : '1px solid #ffdddd',
-                          borderRadius: library === 'mui' ? '16px' : '6px',
-                          fontSize: '13px',
-                          color: library === 'bootstrap' || library === 'mui' ? '#fff' : '#cc0000',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          fontWeight: library === 'bootstrap' ? '600' : '400',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px'
-                        }}
-                        onMouseEnter={(e) => {
-                          if (library === 'bootstrap') e.currentTarget.style.background = '#c82333';
-                          else if (library === 'mui') e.currentTarget.style.background = '#c62828';
-                          else { e.currentTarget.style.background = '#fff5f5'; e.currentTarget.style.borderColor = '#ffcccc'; }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (library === 'bootstrap') e.currentTarget.style.background = '#dc3545';
-                          else if (library === 'mui') e.currentTarget.style.background = '#d32f2f';
-                          else { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#ffdddd'; }
-                        }}
-                      >
-                        <Trash2 size={14} />
-                        Eliminar
-                      </button>
-                    </div>
+            <tbody className="divide-y divide-gray-200">
+              {data.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length + 1} className="px-6 py-12 text-center text-gray-500">
+                    {emptyMessage}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                data.map((row) => (
+                  <tr key={row.id} className="hover:bg-gray-50 transition-colors">
+                    {columns.map((col) => (
+                      <td key={String(col.key)} className="px-6 py-4 text-sm text-gray-900">
+                        {col.render ? col.render(row) : String(row[col.key as keyof T] || '')}
+                      </td>
+                    ))}
+                    <td className="px-6 py-4 text-right">{renderActions(row)}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
-
-        {data.length === 0 && (
-          <div style={{
-            padding: '60px 24px',
-            textAlign: 'center',
-            color: '#999',
-            fontSize: '14px'
-          }}>
-            {emptyMessage}
-          </div>
-        )}
       </div>
     </Layout>
   );
 }
 
 export default GenericList;
-

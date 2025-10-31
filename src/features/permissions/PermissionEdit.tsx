@@ -43,7 +43,7 @@ const PermissionEdit: React.FC = () => {
 
   return (
     <GenericForm
-      title={isNew ? 'Permission Create' : 'Editar Permiso'}
+      title={isNew ? 'Crear Permiso' : 'Editar Permiso'}
       subtitle="Entidad, método HTTP y URL protegida"
       fields={[
         { name: 'entity', label: 'Entidad', type: 'text' as const, required: true },

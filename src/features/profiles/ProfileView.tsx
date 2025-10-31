@@ -49,14 +49,14 @@ const ProfileView: React.FC = () => {
 
   return (
     <GenericDetailView
-      title="FBC - Profile"
-      subtitle="Perfil de usuario"
+      title="Perfil de Usuario"
+      subtitle={user.name}
       imageUrl={profile.photo || undefined}
       imageFallback={user.name}
       fields={[
         { label: 'Nombre', value: user.name },
         { label: 'Email', value: user.email },
-        { label: 'Phone', value: profile.phone || '-' },
+        { label: 'Teléfono', value: profile.phone || '-' },
         { label: 'Creado', value: formatDate(profile.created_at) },
         { label: 'Actualizado', value: formatDate(profile.updated_at) }
       ]}
