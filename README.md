@@ -4,13 +4,17 @@ Sistema de gestión de usuarios con autenticación OAuth y múltiples librerías
 
 ## Descripción
 
-Aplicación web fullstack que implementa un sistema de seguridad con las siguientes características:
+Aplicación web fullstack que implementa un sistema de seguridad integral con las siguientes características:
 
-- Autenticación mediante OAuth 2.0 (Google, Microsoft, GitHub)
-- Backend REST API con Flask y SQLAlchemy
-- Frontend React con TypeScript y Vite
-- Soporte para tres librerías de diseño UI: Tailwind CSS, Material UI y Bootstrap
-- Gestión de relaciones de base de datos (1:1, 1:N, N:N)
+- **Autenticación**: OAuth 2.0 mediante Firebase (Google, Microsoft, GitHub)
+- **Backend**: REST API con Flask y SQLAlchemy
+- **Frontend**: React 18 con TypeScript y Vite
+- **Sistema Multi-UI**: Soporte dinámico para tres librerías de diseño UI:
+  - Tailwind CSS (por defecto)
+  - Material UI (MUI)
+  - Bootstrap 5
+- **Componentes Genéricos**: Sistema de componentes reutilizables que se adaptan automáticamente a la librería UI seleccionada
+- **Gestión Completa**: CRUDs para múltiples entidades con relaciones de base de datos (1:1, 1:N, N:N)
 
 ## Requisitos del Sistema
 
@@ -145,12 +149,39 @@ ms_security/
 ├── src/                          # Frontend React
 │   ├── auth/                     # Autenticación Firebase
 │   ├── components/
-│   │   └── adaptive/             # Componentes multi-UI
+│   │   ├── generic/              # Componentes genéricos reutilizables
+│   │   │   ├── GenericForm.tsx   # Formulario multi-UI
+│   │   │   ├── GenericList.tsx   # Lista multi-UI
+│   │   │   └── GenericDetailView.tsx  # Vista de detalle multi-UI
+│   │   ├── adaptive/             # Componentes adaptativos
+│   │   ├── Layout.tsx            # Layout principal
+│   │   └── UiLibrarySwitcher.tsx # Selector de librería UI
 │   ├── context/                  # Contextos de React
+│   │   └── UiLibraryContext.tsx  # Contexto para librería UI
 │   ├── features/                 # Módulos por entidad
+│   │   ├── addresses/            # Direcciones
+│   │   ├── answers/              # Respuestas
+│   │   ├── devices/              # Dispositivos
+│   │   ├── digital-signatures/   # Firmas digitales
+│   │   ├── passwords/            # Contraseñas
+│   │   ├── permissions/          # Permisos
+│   │   ├── profiles/             # Perfiles (relación 1:1)
+│   │   ├── role-permissions/     # Permisos de rol
+│   │   ├── roles/                # Roles
+│   │   ├── security-questions/   # Preguntas de seguridad
+│   │   ├── sessions/             # Sesiones (relación 1:N)
+│   │   ├── user-roles/           # Usuario-Roles (relación N:N)
+│   │   └── users/                # Usuarios
 │   ├── lib/                      # Cliente API
+│   │   └── api.ts                # Configuración Axios
 │   ├── pages/                    # Páginas principales
-│   └── routes/                   # Guards y rutas protegidas
+│   │   ├── Dashboard.tsx         # Panel de control
+│   │   └── Login.tsx             # Página de login
+│   ├── routes/                   # Guards y rutas protegidas
+│   │   └── ProtectedRoute.tsx    # Componente de ruta protegida
+│   └── utils/                    # Utilidades
+│       ├── dateFormatter.ts      # Formateo de fechas
+│       └── formValidation.ts     # Validación de formularios
 ├── requirements.txt              # Dependencias Python
 ├── package.json                  # Dependencias Node.js
 └── vite.config.ts               # Configuración de Vite
@@ -170,57 +201,83 @@ ms_security/
 El sistema permite cambiar dinámicamente entre tres librerías de diseño:
 
 - **Tailwind CSS**: Diseño por defecto
-- **Material UI**: Seleccionar desde el menú superior
-- **Bootstrap**: Seleccionar desde el menú superior
+- **Material UI (MUI)**: Seleccionar desde el menú superior
+- **Bootstrap 5**: Seleccionar desde el menú superior
 
-El selector se encuentra en la esquina superior derecha del panel de control.
+El selector se encuentra en la esquina superior derecha del panel de control. Todos los componentes se adaptan automáticamente al estilo seleccionado sin necesidad de recargar la página.
+
+### Componentes Genéricos
+
+El sistema incluye componentes genéricos reutilizables que se adaptan automáticamente a la librería UI seleccionada:
+
+- **GenericForm**: Formulario genérico que soporta múltiples tipos de campos (texto, número, email, fecha, select)
+- **GenericList**: Tabla genérica con paginación, ordenamiento y acciones (editar, eliminar)
+- **GenericDetailView**: Vista de detalle genérica con soporte para diferentes tipos de campos
+
+Estos componentes permiten crear CRUDs completos con mínimo código, adaptándose automáticamente a Tailwind CSS, Material UI o Bootstrap según la selección del usuario.
 
 ### Gestión de Entidades
 
 El sistema incluye CRUDs completos para las siguientes entidades:
 
+#### Entidades Principales
 - **Usuarios**: Gestión básica de usuarios
-- **Perfiles**: Relación 1:1 con usuarios
-- **Sesiones**: Relación 1:N con usuarios
-- **Usuario-Roles**: Relación N:N (tabla intermedia)
+- **Roles**: Definición de roles del sistema
+- **Permisos**: Gestión de permisos individuales
+- **Role-Permissions**: Asignación de permisos a roles (relación N:N)
+
+#### Entidades de Seguridad
+- **Perfiles**: Información adicional de usuarios (relación 1:1)
+- **Sesiones**: Historial de sesiones de usuario (relación 1:N)
+- **Usuario-Roles**: Asignación de roles a usuarios (relación N:N)
+- **Passwords**: Gestión de contraseñas
+- **Security Questions**: Preguntas de seguridad
+- **Digital Signatures**: Firmas digitales
+
+#### Entidades Adicionales
+- **Addresses**: Direcciones asociadas
+- **Devices**: Dispositivos registrados
+- **Answers**: Respuestas a preguntas de seguridad
 
 Cada módulo permite:
-- Listar registros
-- Crear nuevos registros
+- Listar registros con paginación y ordenamiento
+- Crear nuevos registros mediante formularios adaptativos
 - Editar registros existentes
-- Eliminar registros
+- Eliminar registros con confirmación
+- Visualizar detalles completos de cada registro
 
 ## API Endpoints
 
-El backend expone los siguientes endpoints REST:
+El backend expone los siguientes endpoints REST siguiendo el patrón estándar CRUD:
 
-### Usuarios
-- `GET /api/users/` - Listar usuarios
-- `GET /api/users/<id>` - Obtener usuario específico
-- `POST /api/users/` - Crear usuario
-- `PUT /api/users/<id>` - Actualizar usuario
-- `DELETE /api/users/<id>` - Eliminar usuario
+### Patrón de Endpoints
 
-### Perfiles
-- `GET /api/profiles/` - Listar perfiles
-- `GET /api/profiles/<id>` - Obtener perfil específico
-- `POST /api/profiles/` - Crear perfil
-- `PUT /api/profiles/<id>` - Actualizar perfil
-- `DELETE /api/profiles/<id>` - Eliminar perfil
+Cada entidad sigue el mismo patrón de endpoints:
+- `GET /api/<entidad>/` - Listar todos los registros
+- `GET /api/<entidad>/<id>` - Obtener un registro específico
+- `POST /api/<entidad>/` - Crear un nuevo registro
+- `PUT /api/<entidad>/<id>` - Actualizar un registro existente
+- `DELETE /api/<entidad>/<id>` - Eliminar un registro
 
-### Sesiones
-- `GET /api/sessions/` - Listar sesiones
-- `GET /api/sessions/<id>` - Obtener sesión específica
-- `POST /api/sessions/` - Crear sesión
-- `PUT /api/sessions/<id>` - Actualizar sesión
-- `DELETE /api/sessions/<id>` - Eliminar sesión
+### Entidades Disponibles
 
-### Usuario-Roles
-- `GET /api/user-roles/` - Listar asignaciones
-- `GET /api/user-roles/<id>` - Obtener asignación específica
-- `POST /api/user-roles/` - Crear asignación
-- `PUT /api/user-roles/<id>` - Actualizar asignación
-- `DELETE /api/user-roles/<id>` - Eliminar asignación
+El sistema incluye endpoints para las siguientes entidades:
+
+- `/api/users/` - Usuarios
+- `/api/profiles/` - Perfiles
+- `/api/sessions/` - Sesiones
+- `/api/user-roles/` - Asignaciones Usuario-Rol
+- `/api/roles/` - Roles
+- `/api/permissions/` - Permisos
+- `/api/role-permissions/` - Asignaciones Rol-Permiso
+- `/api/passwords/` - Contraseñas
+- `/api/security-questions/` - Preguntas de seguridad
+- `/api/answers/` - Respuestas
+- `/api/digital-signatures/` - Firmas digitales
+- `/api/addresses/` - Direcciones
+- `/api/devices/` - Dispositivos
+
+Todos los endpoints requieren autenticación mediante token JWT almacenado en localStorage.
 
 ## Solución de Problemas
 
@@ -269,22 +326,41 @@ Si necesita empezar desde cero:
 - Flask-Migrate 4.0.5
 
 ### Frontend
-- React 18
-- TypeScript 5
-- Vite 5
-- React Router DOM 6
-- Axios
-- Firebase Authentication
-- Tailwind CSS 3
-- Material UI 5
-- Bootstrap 5
+- **Core**:
+  - React 18.3.1
+  - TypeScript 5.5.3
+  - Vite 5.4.2
+  - React Router DOM 7.9.5
+- **HTTP Client**: Axios 1.13.1
+- **Autenticación**: Firebase 12.4.0
+- **UI Libraries**:
+  - Tailwind CSS 3.4.1
+  - Material UI (MUI) 7.3.4
+  - Bootstrap 5.3.8
+- **Utilidades**:
+  - Lucide React (iconos) 0.344.0
+  - Boring Avatars 2.0.4
+  - Emotion (para MUI) 11.14.0
+- **Desarrollo**:
+  - ESLint 9.9.1
+  - TypeScript ESLint 8.3.0
+
+## Arquitectura del Sistema Multi-UI
+
+El sistema implementa una arquitectura flexible que permite cambiar dinámicamente entre diferentes librerías de UI:
+
+1. **Context Provider**: `UiLibraryContext` mantiene el estado de la librería UI seleccionada
+2. **Componentes Genéricos**: `GenericForm`, `GenericList` y `GenericDetailView` detectan la librería activa y renderizan el componente apropiado
+3. **Adaptación Automática**: Todos los componentes se adaptan sin recargar la página
+4. **Consistencia Visual**: Cada librería mantiene su propia identidad visual mientras se preserva la funcionalidad
 
 ## Notas Adicionales
 
-- El sistema utiliza SQLite para simplificar el despliegue. Para producción, se recomienda migrar a PostgreSQL o MySQL.
-- Los tokens de autenticación se almacenan en localStorage del navegador.
-- El archivo `app.db` no debe incluirse en el control de versiones (está en `.gitignore`).
-- Para despliegue en producción, configurar variables de entorno apropiadas y utilizar HTTPS.
+- **Base de Datos**: El sistema utiliza SQLite para simplificar el despliegue. Para producción, se recomienda migrar a PostgreSQL o MySQL. El archivo `app.db` no debe incluirse en el control de versiones (está en `.gitignore`).
+- **Autenticación**: Los tokens de autenticación se almacenan en localStorage del navegador.
+- **Producción**: Para despliegue en producción, configurar variables de entorno apropiadas y utilizar HTTPS.
+- **Componentes Genéricos**: Los componentes genéricos están diseñados para ser altamente reutilizables y extensibles. Pueden personalizarse mediante props y callbacks.
+- **TypeScript**: Todo el código frontend está tipado con TypeScript para mayor seguridad y mantenibilidad.
 
 ## Licencia
 
