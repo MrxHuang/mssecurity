@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
+import { formatDate } from '../../utils/dateFormatter';
 
 type Session = {
   id: string;
@@ -49,16 +50,7 @@ const SessionsList: React.FC = () => {
             {row.token}
           </span>
         )},
-        { key: 'expiration', label: 'Expiración', render: (row) => {
-          if (!row.expiration) return '-';
-          try {
-            const dateStr = row.expiration.split('T')[0];
-            const [year, month, day] = dateStr.split('-');
-            return `${day}/${month}/${year}`;
-          } catch {
-            return row.expiration;
-          }
-        }},
+        { key: 'expiration', label: 'Expiración', render: (row) => formatDate(row.expiration) },
         { key: 'state', label: 'Estado', render: (row) => (
           <span style={{
             padding: '4px 8px',

@@ -19,6 +19,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Tiempo de inactividad en milisegundos (30 minutos por defecto)
+  const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutos
+  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Función de logout (se define después)
+  const logout = async () => {
+    await signOut(auth);
+  };
+
+  // Función para reiniciar el timeout de inactividad
+  const resetInactivityTimeout = React.useCallback(() => {
+    // Limpiar timeout anterior
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    // Si hay un usuario autenticado, crear nuevo timeout
+    if (user) {
+      timeoutRef.current = setTimeout(async () => {
+        console.log('⏰ Sesión expirada por inactividad, cerrando sesión...');
+        await logout();
+        alert('Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente.');
+      }, SESSION_TIMEOUT);
+      
+      console.log('🔄 Timeout de inactividad reiniciado');
+    }
+  }, [user]);
+
+  // Detectar actividad del usuario
+  useEffect(() => {
+    if (!user) {
+      // Limpiar timeout si no hay usuario
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      return;
+    }
+
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    // Throttle para evitar demasiadas llamadas
+    let activityTimer: NodeJS.Timeout | null = null;
+    
+    const handleActivity = () => {
+      if (activityTimer) return;
+      
+      activityTimer = setTimeout(() => {
+        resetInactivityTimeout();
+        activityTimer = null;
+      }, 1000); // Esperar 1 segundo antes de resetear
+    };
+
+    // Agregar listeners para todos los eventos de actividad
+    events.forEach(event => {
+      window.addEventListener(event, handleActivity, { passive: true });
+    });
+
+    // Inicializar el timeout
+    resetInactivityTimeout();
+
+    // Cleanup
+    return () => {
+      events.forEach(event => {
+        window.removeEventListener(event, handleActivity);
+      });
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      if (activityTimer) {
+        clearTimeout(activityTimer);
+      }
+    };
+  }, [user, resetInactivityTimeout]);
+
   useEffect(() => {
     console.log('🎬 Iniciando listener de autenticación...');
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
@@ -48,6 +125,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           localStorage.removeItem('authToken');
         } catch {}
+        // Limpiar timeout cuando el usuario cierra sesión
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
       }
       setLoading(false);
       console.log('✅ Estado actualizado - loading:', false, 'user:', u ? 'presente' : 'null');
@@ -139,9 +221,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       throw error;
     }
-  };
-  const logout = async () => {
-    await signOut(auth);
   };
 
   const value = useMemo<AuthContextValue>(() => ({

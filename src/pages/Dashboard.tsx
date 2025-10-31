@@ -2,7 +2,9 @@ import React from 'react';
 import Layout from '../components/Layout';
 import { Link } from 'react-router-dom';
 import { useUiLibrary } from '../context/UiLibraryContext';
-import { Users, FileText, Lock, Shield, UserPlus, FilePlus, Key, Target } from 'lucide-react';
+import { Users, FileText, Lock, Shield, UserPlus, FilePlus, Key, Target, MapPin, CheckSquare, PenTool, Monitor, HelpCircle, MessageSquare } from 'lucide-react';
+import { Card, CardContent, Button, Box, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 const Dashboard: React.FC = () => {
   const { library } = useUiLibrary();
@@ -39,192 +41,327 @@ const Dashboard: React.FC = () => {
       icon: Shield,
       color: '#4a4a4a'
     },
+    { 
+      to: '/addresses', 
+      title: 'Direcciones', 
+      desc: 'Direcciones de usuarios (1:1)',
+      count: '3',
+      icon: MapPin,
+      color: '#5a5a5a'
+    },
+    { 
+      to: '/digital-signatures', 
+      title: 'Firmas', 
+      desc: 'Firmas digitales de usuarios',
+      count: '3',
+      icon: PenTool,
+      color: '#6a6a6a'
+    },
+    { 
+      to: '/devices', 
+      title: 'Dispositivos', 
+      desc: 'Dispositivos registrados',
+      count: '6',
+      icon: Monitor,
+      color: '#7a7a7a'
+    },
+    { 
+      to: '/passwords', 
+      title: 'Contraseñas', 
+      desc: 'Gestión de contraseñas',
+      count: '3',
+      icon: Key,
+      color: '#8a8a8a'
+    },
+    { 
+      to: '/security-questions', 
+      title: 'Preguntas', 
+      desc: 'Preguntas de seguridad',
+      count: '9',
+      icon: HelpCircle,
+      color: '#9a9a9a'
+    },
+    { 
+      to: '/answers', 
+      title: 'Respuestas', 
+      desc: 'Respuestas de seguridad',
+      count: '9',
+      icon: MessageSquare,
+      color: '#aa9a9a'
+    },
+    { 
+      to: '/roles', 
+      title: 'Roles (cat.)', 
+      desc: 'Categorías de roles',
+      count: '3',
+      icon: Shield,
+      color: '#ba9a9a'
+    },
+    { 
+      to: '/permissions', 
+      title: 'Permisos', 
+      desc: 'Reglas de acceso a endpoints',
+      count: '9',
+      icon: CheckSquare,
+      color: '#ca9a9a'
+    },
+    { 
+      to: '/role-permissions', 
+      title: 'Rol ↔ Permiso', 
+      desc: 'Asignación de permisos a roles',
+      count: '12',
+      icon: CheckSquare,
+      color: '#da9a9a'
+    },
   ];
 
-  const getCardStyle = () => {
-    if (library === 'bootstrap') {
-      return {
+  // Componente de tarjeta con Tailwind
+  const TailwindCard = ({ card }: { card: typeof cards[0] }) => (
+    <Link 
+      to={card.to} 
+      className="bg-white border-2 border-gray-200 rounded-xl p-6 no-underline cursor-pointer relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-blue-500"
+    >
+      <div className="flex justify-between items-start mb-4">
+        <div className="leading-none">
+          <card.icon size={32} className="text-gray-900" />
+        </div>
+        <div className="text-3xl font-bold text-gray-900 tracking-tight">
+          {card.count}
+        </div>
+      </div>
+      <div className="text-lg font-semibold text-gray-900 mb-1 tracking-tight">
+        {card.title}
+      </div>
+      <div className="text-sm text-gray-600 leading-relaxed">
+        {card.desc}
+      </div>
+    </Link>
+  );
+
+  // Componente de tarjeta con Bootstrap
+  const BootstrapCard = ({ card }: { card: typeof cards[0] }) => (
+    <Link 
+      to={card.to} 
+      className="card text-white text-decoration-none overflow-hidden"
+      style={{
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        border: 'none',
-        borderRadius: '8px',
-        color: '#fff'
-      };
+        cursor: 'pointer',
+        transition: 'transform 0.3s ease'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'scale(1.05)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'scale(1)';
+      }}
+    >
+      <div className="card-body p-4">
+        <div className="d-flex justify-content-between align-items-start mb-3">
+          <div className="lh-1">
+            <card.icon size={32} color="#fff" />
+          </div>
+          <div className="fs-2 fw-bold">
+            {card.count}
+          </div>
+        </div>
+        <h5 className="card-title fw-semibold mb-1">
+          {card.title}
+        </h5>
+        <p className="card-text text-white-50 small mb-0">
+          {card.desc}
+        </p>
+      </div>
+    </Link>
+  );
+
+  // Componente de tarjeta con Material UI
+  const MuiCard = ({ card }: { card: typeof cards[0] }) => {
+    const StyledCard = styled(Card)(({ theme }) => ({
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      '&:hover': {
+        boxShadow: theme.shadows[8],
+        transform: 'translateY(-8px)'
+      }
+    }));
+
+    return (
+      <Link to={card.to} className="no-underline" style={{ textDecoration: 'none' }}>
+        <StyledCard>
+          <CardContent sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+              <Box sx={{ lineHeight: 1 }}>
+                <card.icon size={32} color="#1976d2" />
+              </Box>
+              <Typography variant="h4" component="div" sx={{ fontWeight: 700, letterSpacing: '-1px' }}>
+                {card.count}
+              </Typography>
+            </Box>
+            <Typography variant="h6" component="div" sx={{ fontWeight: 600, mb: 0.5, letterSpacing: '-0.3px' }}>
+              {card.title}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8125rem', lineHeight: 1.4 }}>
+              {card.desc}
+            </Typography>
+          </CardContent>
+        </StyledCard>
+      </Link>
+    );
+  };
+
+  // Renderizar tarjetas según la librería
+  const renderCards = () => {
+    if (library === 'bootstrap') {
+      return (
+        <div className="row g-4 mb-4">
+          {cards.map((card) => (
+            <div key={card.to} className="col-md-6 col-lg-4 col-xl-3">
+              <BootstrapCard card={card} />
+            </div>
+          ))}
+        </div>
+      );
     } else if (library === 'mui') {
-      return {
-        background: '#fff',
-        border: 'none',
-        borderRadius: '16px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-      };
+      return (
+        <Box 
+          sx={{ 
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
+            gap: 3,
+            mb: 4
+          }}
+        >
+          {cards.map((card) => (
+            <MuiCard key={card.to} card={card} />
+          ))}
+        </Box>
+      );
     } else {
-      return {
-        background: '#fff',
-        border: '2px solid #e5e5e5',
-        borderRadius: '12px'
-      };
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+          {cards.map((card) => (
+            <TailwindCard key={card.to} card={card} />
+          ))}
+        </div>
+      );
     }
   };
 
   return (
     <Layout>
       {/* Stats Cards */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '24px',
-        marginBottom: '32px'
-      }}>
-        {cards.map((card) => (
-          <Link 
-            key={card.to} 
-            to={card.to} 
-            style={{ 
-              textDecoration: 'none',
-              ...getCardStyle(),
-              padding: '24px',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
-            onMouseEnter={(e) => {
-              if (library === 'bootstrap') {
-                e.currentTarget.style.transform = 'scale(1.05)';
-              } else if (library === 'mui') {
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.15)';
-                e.currentTarget.style.transform = 'translateY(-8px)';
-              } else {
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-                e.currentTarget.style.borderColor = '#3b82f6';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (library === 'bootstrap') {
-                e.currentTarget.style.transform = 'scale(1)';
-              } else if (library === 'mui') {
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              } else {
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.borderColor = '#e5e5e5';
-              }
-            }}
-          >
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              marginBottom: '16px'
-            }}>
-              <div style={{
-                lineHeight: 1
-              }}>
-                <card.icon 
-                  size={32} 
-                  color={library === 'bootstrap' ? '#fff' : '#1a1a1a'} 
-                />
-              </div>
-              <div style={{
-                fontSize: '28px',
-                fontWeight: '700',
-                color: library === 'bootstrap' ? '#fff' : '#1a1a1a',
-                letterSpacing: '-1px'
-              }}>
-                {card.count}
-              </div>
-            </div>
-            <div style={{
-              fontSize: '18px',
-              fontWeight: '600',
-              color: library === 'bootstrap' ? '#fff' : '#1a1a1a',
-              marginBottom: '4px',
-              letterSpacing: '-0.3px'
-            }}>
-              {card.title}
-            </div>
-            <div style={{
-              fontSize: '13px',
-              color: library === 'bootstrap' ? 'rgba(255,255,255,0.9)' : '#666',
-              lineHeight: '1.4'
-            }}>
-              {card.desc}
-            </div>
-          </Link>
-        ))}
-      </div>
+      {renderCards()}
 
       {/* Quick Actions */}
-      <div style={{
-        background: library === 'bootstrap' ? '#f8f9fa' : '#fff',
-        border: library === 'mui' ? 'none' : '1px solid #e5e5e5',
-        borderRadius: library === 'mui' ? '16px' : '12px',
-        padding: '24px',
-        boxShadow: library === 'mui' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none'
-      }}>
-        <h3 style={{
-          margin: '0 0 20px 0',
-          fontSize: '16px',
-          fontWeight: '600',
-          color: '#1a1a1a',
-          letterSpacing: '-0.3px'
-        }}>
-          Acciones Rápidas
-        </h3>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '12px'
-        }}>
-          {[
-            { to: '/users/new', label: 'Crear Usuario', icon: UserPlus },
-            { to: '/profiles/new', label: 'Crear Perfil', icon: FilePlus },
-            { to: '/sessions/new', label: 'Nueva Sesión', icon: Key },
-            { to: '/user-roles/new', label: 'Asignar Rol', icon: Target },
-          ].map((action) => (
-            <Link
-              key={action.to}
-              to={action.to}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '12px 16px',
-                background: library === 'bootstrap' ? '#007bff' : library === 'mui' ? '#1976d2' : '#fafafa',
-                border: library === 'tailwind' ? '1px solid #e5e5e5' : 'none',
-                borderRadius: library === 'mui' ? '20px' : '8px',
-                textDecoration: 'none',
-                color: library === 'bootstrap' || library === 'mui' ? '#fff' : '#1a1a1a',
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (library === 'bootstrap') {
-                  e.currentTarget.style.background = '#0056b3';
-                } else if (library === 'mui') {
-                  e.currentTarget.style.background = '#1565c0';
-                } else {
-                  e.currentTarget.style.background = '#f0f0f0';
-                  e.currentTarget.style.borderColor = '#d0d0d0';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (library === 'bootstrap') {
-                  e.currentTarget.style.background = '#007bff';
-                } else if (library === 'mui') {
-                  e.currentTarget.style.background = '#1976d2';
-                } else {
-                  e.currentTarget.style.background = '#fafafa';
-                  e.currentTarget.style.borderColor = '#e5e5e5';
-                }
+      {library === 'bootstrap' ? (
+        <div className="card bg-light">
+          <div className="card-body p-4">
+            <h5 className="card-title fw-semibold mb-3">Acciones Rápidas</h5>
+            <div className="row g-2">
+              {[
+                { to: '/users/new', label: 'Crear Usuario', icon: UserPlus },
+                { to: '/profiles/new', label: 'Crear Perfil', icon: FilePlus },
+                { to: '/sessions/new', label: 'Nueva Sesión', icon: Key },
+                { to: '/user-roles/new', label: 'Asignar Rol', icon: Target },
+                { to: '/addresses/create', label: 'Crear Dirección', icon: MapPin },
+                { to: '/digital-signatures/new', label: 'Crear Firma', icon: PenTool },
+                { to: '/devices/new', label: 'Registrar Dispositivo', icon: Monitor },
+                { to: '/passwords/new', label: 'Nueva Contraseña', icon: Key },
+                { to: '/security-questions/new', label: 'Crear Pregunta', icon: HelpCircle },
+                { to: '/answers/new', label: 'Crear Respuesta', icon: MessageSquare },
+                { to: '/roles/new', label: 'Crear Rol (cat.)', icon: Shield },
+                { to: '/permissions/new', label: 'Crear Permiso', icon: CheckSquare },
+                { to: '/role-permissions/new', label: 'Asignar Permiso', icon: CheckSquare },
+              ].map((action) => (
+                <div key={action.to} className="col-md-6 col-lg-4 col-xl-3">
+                  <Link
+                    to={action.to}
+                    className="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+                  >
+                    <action.icon size={18} />
+                    {action.label}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : library === 'mui' ? (
+        <Card>
+          <CardContent sx={{ p: 3 }}>
+            <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mb: 2.5, letterSpacing: '-0.3px' }}>
+              Acciones Rápidas
+            </Typography>
+            <Box 
+              sx={{ 
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' },
+                gap: 1.5
               }}
             >
-              <action.icon size={18} />
-              {action.label}
-            </Link>
-          ))}
+              {[
+                { to: '/users/new', label: 'Crear Usuario', icon: UserPlus },
+                { to: '/profiles/new', label: 'Crear Perfil', icon: FilePlus },
+                { to: '/sessions/new', label: 'Nueva Sesión', icon: Key },
+                { to: '/user-roles/new', label: 'Asignar Rol', icon: Target },
+                { to: '/addresses/create', label: 'Crear Dirección', icon: MapPin },
+                { to: '/digital-signatures/new', label: 'Crear Firma', icon: PenTool },
+                { to: '/devices/new', label: 'Registrar Dispositivo', icon: Monitor },
+                { to: '/passwords/new', label: 'Nueva Contraseña', icon: Key },
+                { to: '/security-questions/new', label: 'Crear Pregunta', icon: HelpCircle },
+                { to: '/answers/new', label: 'Crear Respuesta', icon: MessageSquare },
+                { to: '/roles/new', label: 'Crear Rol (cat.)', icon: Shield },
+                { to: '/permissions/new', label: 'Crear Permiso', icon: CheckSquare },
+                { to: '/role-permissions/new', label: 'Asignar Permiso', icon: CheckSquare },
+              ].map((action) => (
+                <Button
+                  key={action.to}
+                  component={Link}
+                  to={action.to}
+                  variant="contained"
+                  fullWidth
+                  startIcon={<action.icon size={18} />}
+                  sx={{ borderRadius: '20px', textTransform: 'none' }}
+                >
+                  {action.label}
+                </Button>
+              ))}
+            </Box>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <h3 className="text-base font-semibold text-gray-900 mb-5 tracking-tight">
+            Acciones Rápidas
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {[
+              { to: '/users/new', label: 'Crear Usuario', icon: UserPlus },
+              { to: '/profiles/new', label: 'Crear Perfil', icon: FilePlus },
+              { to: '/sessions/new', label: 'Nueva Sesión', icon: Key },
+              { to: '/user-roles/new', label: 'Asignar Rol', icon: Target },
+              { to: '/addresses/create', label: 'Crear Dirección', icon: MapPin },
+              { to: '/digital-signatures/new', label: 'Crear Firma', icon: PenTool },
+              { to: '/devices/new', label: 'Registrar Dispositivo', icon: Monitor },
+              { to: '/passwords/new', label: 'Nueva Contraseña', icon: Key },
+              { to: '/security-questions/new', label: 'Crear Pregunta', icon: HelpCircle },
+              { to: '/answers/new', label: 'Crear Respuesta', icon: MessageSquare },
+              { to: '/roles/new', label: 'Crear Rol (cat.)', icon: Shield },
+              { to: '/permissions/new', label: 'Crear Permiso', icon: CheckSquare },
+              { to: '/role-permissions/new', label: 'Asignar Permiso', icon: CheckSquare },
+            ].map((action) => (
+              <Link
+                key={action.to}
+                to={action.to}
+                className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg no-underline text-gray-900 text-sm font-medium transition-all hover:bg-gray-100 hover:border-gray-300"
+              >
+                <action.icon size={18} />
+                {action.label}
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </Layout>
   );
 };

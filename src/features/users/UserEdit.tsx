@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
+import { validateRequired, validateEmail } from '../../utils/formValidation';
 
 type UserInput = {
   name: string;
@@ -28,6 +29,20 @@ const UserEdit: React.FC = () => {
   }, [id, isNew]);
 
   const save = async () => {
+    // Validaciones
+    if (!validateRequired(value.name)) {
+      alert('El nombre es obligatorio');
+      return;
+    }
+    if (!validateRequired(value.email)) {
+      alert('El correo electrónico es obligatorio');
+      return;
+    }
+    if (!validateEmail(value.email)) {
+      alert('El correo electrónico no es válido');
+      return;
+    }
+
     try {
       if (isNew) {
         await apiClient.post('/api/users/', value);
@@ -35,8 +50,16 @@ const UserEdit: React.FC = () => {
         await apiClient.put(`/api/users/${id}`, value);
       }
       navigate('/users');
-    } catch (err) {
-      alert('Error al guardar. Verifica los datos.');
+    } catch (err: any) {
+      let errorMsg = 'Error al guardar';
+      if (err.response?.status === 400) {
+        errorMsg = err.response.data?.error || 'Datos inválidos';
+      } else if (err.response?.status === 409) {
+        errorMsg = 'El correo electrónico ya está en uso';
+      } else if (err.response?.data?.message) {
+        errorMsg = err.response.data.message;
+      }
+      alert(errorMsg);
     }
   };
 

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
+import { formatDate } from '../../utils/dateFormatter';
 
 type Password = {
   id: number;
   user_id: number;
-  hash: string;
+  content: string;
   created_at?: string;
 };
 
@@ -41,10 +42,10 @@ const PasswordsList: React.FC = () => {
       columns={[
         { key: 'id', label: 'ID', render: (row) => `#${row.id}` },
         { key: 'user_id', label: 'Usuario', render: (row) => `Usuario #${row.user_id}` },
-        { key: 'hash', label: 'Hash', render: (row) => (
-          <span style={{ maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{row.hash}</span>
+        { key: 'content', label: 'Hash', render: (row) => (
+          <span style={{ maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{row.content}</span>
         )},
-        { key: 'created_at', label: 'Creado' }
+        { key: 'created_at', label: 'Creado', render: (row) => formatDate(row.created_at) }
       ]}
       onDelete={handleDelete}
       createPath="/passwords/new"

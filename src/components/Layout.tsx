@@ -37,10 +37,10 @@ const Layout: React.FC<Props> = ({ children }) => {
   };
 
   const sidebarStyle = library === 'bootstrap'
-    ? { width: '260px', background: '#343a40', color: '#fff', display: 'flex', flexDirection: 'column' as const, borderRight: '1px solid #495057' }
+    ? { width: '260px', background: '#343a40', color: '#fff', display: 'flex', flexDirection: 'column' as const, borderRight: '1px solid #495057', height: '100vh', position: 'fixed' as const, overflow: 'hidden' }
     : library === 'mui'
-    ? { width: '280px', background: '#1976d2', color: '#fff', display: 'flex', flexDirection: 'column' as const, borderRight: 'none', boxShadow: '2px 0 8px rgba(0,0,0,0.1)' }
-    : { width: '260px', background: '#1a1a1a', color: '#fff', display: 'flex', flexDirection: 'column' as const, borderRight: '1px solid #2a2a2a' };
+    ? { width: '280px', background: '#1976d2', color: '#fff', display: 'flex', flexDirection: 'column' as const, borderRight: 'none', boxShadow: '2px 0 8px rgba(0,0,0,0.1)', height: '100vh', position: 'fixed' as const, overflow: 'hidden' }
+    : { width: '260px', background: '#1a1a1a', color: '#fff', display: 'flex', flexDirection: 'column' as const, borderRight: '1px solid #2a2a2a', height: '100vh', position: 'fixed' as const, overflow: 'hidden' };
 
   const bgColor = library === 'bootstrap' ? '#f8f9fa' : library === 'mui' ? '#f5f5f5' : '#f5f5f5';
 
@@ -72,7 +72,10 @@ const Layout: React.FC<Props> = ({ children }) => {
         </div>
 
         {/* Navigation */}
-        <nav style={{ flex: 1, padding: library === 'mui' ? '24px 0' : '20px 0' }}>
+        <nav 
+          className={library === 'bootstrap' ? 'sidebar-scroll-bootstrap' : library === 'mui' ? 'sidebar-scroll-mui' : 'sidebar-scroll-tailwind'}
+          style={{ flex: 1, padding: library === 'mui' ? '24px 0' : '20px 0', overflowY: 'auto', overflowX: 'hidden', minHeight: 0 }}
+        >
           {menuItems.map((item) => {
             const active = isActive(item.path);
             return (
@@ -129,7 +132,8 @@ const Layout: React.FC<Props> = ({ children }) => {
         {/* User Info */}
         <div style={{
           padding: '20px',
-          borderTop: library === 'bootstrap' ? '1px solid #495057' : library === 'mui' ? '1px solid rgba(255,255,255,0.12)' : '1px solid #2a2a2a'
+          borderTop: library === 'bootstrap' ? '1px solid #495057' : library === 'mui' ? '1px solid rgba(255,255,255,0.12)' : '1px solid #2a2a2a',
+          flexShrink: 0
         }}>
           <div style={{
             display: 'flex',
@@ -203,7 +207,7 @@ const Layout: React.FC<Props> = ({ children }) => {
       </div>
 
       {/* Main Content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', marginLeft: library === 'mui' ? '280px' : '260px' }}>
         {/* Top Bar */}
         <div style={{
           background: library === 'bootstrap' ? '#f8f9fa' : library === 'mui' ? '#fff' : '#fff',

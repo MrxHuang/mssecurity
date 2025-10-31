@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
+import { formatDateOnly } from '../../utils/dateFormatter';
 
 type UserRole = {
   id: string;
@@ -45,26 +46,8 @@ const UserRolesList: React.FC = () => {
         )},
         { key: 'user_id', label: 'Usuario', render: (row) => `Usuario #${row.user_id}` },
         { key: 'role_id', label: 'Rol', render: (row) => `Rol #${row.role_id}` },
-        { key: 'startAt', label: 'Inicio', render: (row) => {
-          if (!row.startAt) return '-';
-          try {
-            const dateStr = row.startAt.split('T')[0];
-            const [year, month, day] = dateStr.split('-');
-            return `${day}/${month}/${year}`;
-          } catch {
-            return row.startAt;
-          }
-        }},
-        { key: 'endAt', label: 'Fin', render: (row) => {
-          if (!row.endAt) return '-';
-          try {
-            const dateStr = row.endAt.split('T')[0];
-            const [year, month, day] = dateStr.split('-');
-            return `${day}/${month}/${year}`;
-          } catch {
-            return row.endAt;
-          }
-        }}
+        { key: 'startAt', label: 'Inicio', render: (row) => formatDateOnly(row.startAt) },
+        { key: 'endAt', label: 'Fin', render: (row) => formatDateOnly(row.endAt) }
       ]}
       onDelete={handleDelete}
       createPath="/user-roles/new"

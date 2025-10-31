@@ -4,8 +4,9 @@ import GenericList from '../../components/generic/GenericList';
 
 type Permission = {
   id: number;
-  name: string;
-  description?: string;
+  entity: string;
+  method: string;
+  url: string;
 };
 
 const PermissionsList: React.FC = () => {
@@ -35,12 +36,15 @@ const PermissionsList: React.FC = () => {
   return (
     <GenericList
       title="Permisos"
-      subtitle={`${rows.length} ${rows.length === 1 ? 'permiso' : 'permisos'}`}
+      subtitle={`${rows.length} ${rows.length === 1 ? 'permiso' : 'permisos'} • Reglas API (Entidad, Método, URL)`}
       data={rows}
       columns={[
         { key: 'id', label: 'ID', render: (row) => `#${row.id}` },
-        { key: 'name', label: 'Nombre' },
-        { key: 'description', label: 'Descripción' }
+        { key: 'entity', label: 'Entidad' },
+        { key: 'method', label: 'Método' },
+        { key: 'url', label: 'URL', render: (row) => (
+          <span style={{ maxWidth: '320px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{row.url}</span>
+        ) }
       ]}
       onDelete={handleDelete}
       createPath="/permissions/new"

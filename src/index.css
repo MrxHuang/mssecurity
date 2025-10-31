@@ -1,3 +1,75 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Scrollbar styles para Tailwind */
+.sidebar-scroll-tailwind::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-scroll-tailwind::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll-tailwind::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.sidebar-scroll-tailwind::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Firefox */
+.sidebar-scroll-tailwind {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Scrollbar styles para Material UI */
+.sidebar-scroll-mui::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-scroll-mui::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll-mui::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.sidebar-scroll-mui::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Firefox */
+.sidebar-scroll-mui {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* Scrollbar styles para Bootstrap */
+.sidebar-scroll-bootstrap::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-scroll-bootstrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll-bootstrap::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 3px;
+}
+
+.sidebar-scroll-bootstrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Firefox */
+.sidebar-scroll-bootstrap {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}

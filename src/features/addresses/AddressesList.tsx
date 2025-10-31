@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
+import { formatDate } from '../../utils/dateFormatter';
 
 type Address = {
   id: number;
   user_id: number;
   street: string;
-  city: string;
-  country: string;
+  number: string;
+  latitude?: number;
+  longitude?: number;
 };
 
 const AddressesList: React.FC = () => {
@@ -43,11 +45,12 @@ const AddressesList: React.FC = () => {
         { key: 'id', label: 'ID', render: (row) => `#${row.id}` },
         { key: 'user_id', label: 'ID Usuario', render: (row) => `Usuario #${row.user_id}` },
         { key: 'street', label: 'Calle' },
-        { key: 'city', label: 'Ciudad' },
-        { key: 'country', label: 'País' }
+        { key: 'number', label: 'Número' },
+        { key: 'latitude', label: 'Latitud', render: (row) => row.latitude ?? '-' },
+        { key: 'longitude', label: 'Longitud', render: (row) => row.longitude ?? '-' }
       ]}
       onDelete={handleDelete}
-      createPath="/addresses/new"
+      createPath="/addresses/create"
       editPath={(address) => `/addresses/${address.id}`}
       emptyMessage="No hay direcciones registradas"
     />

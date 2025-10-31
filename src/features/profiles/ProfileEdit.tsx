@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
+import { validateRequired, validateNumber } from '../../utils/formValidation';
 
 type ProfileInput = {
   user_id: string;
@@ -33,18 +34,24 @@ const ProfileEdit: React.FC = () => {
   }, [id, isNew]);
 
   const save = async () => {
+    // Validaciones
+    if (!validateRequired(value.phone)) {
+      alert('El teléfono es obligatorio');
+      return;
+    }
+    
+    if (isNew && !validateRequired(value.user_id)) {
+      alert('El User ID es obligatorio');
+      return;
+    }
+
+    if (isNew && !validateNumber(value.user_id)) {
+      alert('El User ID debe ser un número válido');
+      return;
+    }
+    
     try {
-      if (!value.phone || value.phone.trim() === '') {
-        alert('El teléfono es obligatorio');
-        return;
-      }
-      
-      if (!value.user_id || value.user_id.trim() === '') {
-        alert('El User ID es obligatorio');
-        return;
-      }
-      
-      const payload = { phone: value.phone.trim(), photo: value.photo?.trim() };
+      const payload = { phone: value.phone.trim(), photo: value.photo?.trim() || null };
       if (isNew) {
         await apiClient.post(`/api/profiles/user/${value.user_id}`, payload);
       } else {
@@ -59,7 +66,9 @@ const ProfileEdit: React.FC = () => {
           ? `El usuario con ID ${value.user_id} no existe en el sistema`
           : 'Perfil no encontrado';
       } else if (err.response?.status === 409 || err.response?.status === 400) {
-        errorMsg = `El usuario ${value.user_id} ya tiene un perfil asociado`;
+        errorMsg = err.response.data?.error || `El usuario ${value.user_id} ya tiene un perfil asociado`;
+      } else if (err.response?.data?.error) {
+        errorMsg = err.response.data.error;
       } else if (err.response?.data?.message) {
         errorMsg = err.response.data.message;
       } else if (err.message) {
