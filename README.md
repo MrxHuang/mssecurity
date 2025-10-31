@@ -61,12 +61,28 @@ Para facilitar las pruebas, puede ejecutar el siguiente script que creará usuar
 python create_relations_data.py
 ```
 
-Este script creará:
-- 3 usuarios de prueba
-- 4 roles (Admin, Usuario, Moderador)
-- 3 perfiles asociados a usuarios (relación 1:1)
-- 6 sesiones activas (relación 1:N)
-- 3 asignaciones usuario-rol (relación N:N)
+Este script creará datos de ejemplo para todas las entidades del sistema:
+
+**Entidades principales:**
+- 5 usuarios de prueba (Alice Admin, Bob User, Carol Moderator, Dave Tester, Eve Auditor)
+- 3 roles (Admin, Usuario, Moderador)
+- 7 permisos (catálogo de permisos del sistema)
+
+**Relaciones 1:1 (un usuario por registro):**
+- 3 perfiles asociados a usuarios
+- 3 direcciones asociadas a usuarios
+- 3 firmas digitales asociadas a usuarios
+
+**Relaciones 1:N (múltiples registros por usuario):**
+- 6 sesiones activas (2 sesiones por usuario para los primeros 3 usuarios)
+- 6 contraseñas históricas (2 contraseñas por usuario para los primeros 3 usuarios)
+- 6 dispositivos (2 dispositivos por usuario para los primeros 3 usuarios)
+
+**Relaciones N:N (muchos a muchos):**
+- 3 asignaciones usuario-rol (asignación de roles a usuarios)
+- 9 relaciones rol-permiso (3 permisos asignados a cada rol)
+- 3 preguntas de seguridad (catálogo)
+- 9 respuestas de seguridad (3 usuarios responden 3 preguntas cada uno)
 
 ### 3. Configuración del Frontend
 
