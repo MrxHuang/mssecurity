@@ -115,7 +115,6 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  // Componente de tarjeta con Tailwind
   const TailwindCard = ({ card }: { card: typeof cards[0] }) => (
     <Link 
       to={card.to} 
@@ -138,7 +137,6 @@ const Dashboard: React.FC = () => {
     </Link>
   );
 
-  // Componente de tarjeta con Bootstrap
   const BootstrapCard = ({ card }: { card: typeof cards[0] }) => (
     <Link 
       to={card.to} 
@@ -174,7 +172,6 @@ const Dashboard: React.FC = () => {
     </Link>
   );
 
-  // Componente de tarjeta con Material UI
   const MuiCard = ({ card }: { card: typeof cards[0] }) => {
     const StyledCard = styled(Card)(({ theme }) => ({
       cursor: 'pointer',
@@ -209,7 +206,6 @@ const Dashboard: React.FC = () => {
     );
   };
 
-  // Renderizar tarjetas según la librería
   const renderCards = () => {
     if (library === 'bootstrap') {
       return (
@@ -249,10 +245,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <Layout>
-      {/* Stats Cards */}
       {renderCards()}
-
-      {/* Quick Actions */}
       {library === 'bootstrap' ? (
         <div className="card bg-light">
           <div className="card-body p-4">

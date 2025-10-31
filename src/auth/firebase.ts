@@ -11,18 +11,16 @@ const firebaseConfig = {
   measurementId: "G-0QN9XT7BM1"
 };
 
-// Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 export const googleProvider = new GoogleAuthProvider();
 export const githubProvider = new GithubAuthProvider();
 
-// Configurar provider de Microsoft con scopes necesarios
 export const microsoftProvider = new OAuthProvider('microsoft.com');
 microsoftProvider.setCustomParameters({
-  prompt: 'select_account', // Siempre mostrar selector de cuenta
-  tenant: 'common', // Aceptar cuentas personales y organizacionales
+  prompt: 'select_account',
+  tenant: 'common',
 });
 microsoftProvider.addScope('openid');
 microsoftProvider.addScope('email');

@@ -23,7 +23,6 @@ export const UiLibraryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       localStorage.setItem('uiLibrary', library);
     } catch {}
-    // Cargar CSS de Bootstrap dinámicamente cuando se seleccione
     if (library === 'bootstrap') {
       const id = 'bootstrap-css';
       if (!document.getElementById(id)) {

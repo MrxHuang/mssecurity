@@ -10,7 +10,6 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      console.log('✅ Usuario autenticado, redirigiendo al dashboard...');
       navigate('/');
     }
   }, [user, navigate]);
@@ -20,7 +19,6 @@ const Login: React.FC = () => {
     try {
       await loginFn();
     } catch (err) {
-      console.error('Error en login:', err);
       setRedirecting(false);
     }
   };
