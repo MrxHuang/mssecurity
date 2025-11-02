@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { useUiLibrary } from '../context/UiLibraryContext';
+import { Alert, Snackbar } from '@mui/material';
 
 type NotificationType = 'success' | 'error' | 'info' | 'warning';
 
@@ -20,6 +22,7 @@ const NotificationContext = createContext<NotificationContextValue | undefined>(
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { library } = useUiLibrary();
 
   const removeNotification = useCallback((id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
@@ -39,6 +42,99 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const showInfo = useCallback((message: string) => showNotification(message, 'info'), [showNotification]);
   const showWarning = useCallback((message: string) => showNotification(message, 'warning'), [showNotification]);
 
+  const renderTailwindNotification = (notification: Notification) => {
+    const colors = {
+      success: { bg: 'bg-green-50', border: 'border-green-500', text: 'text-green-800', icon: '✓' },
+      error: { bg: 'bg-red-50', border: 'border-red-500', text: 'text-red-800', icon: '✕' },
+      info: { bg: 'bg-blue-50', border: 'border-blue-500', text: 'text-blue-800', icon: 'ℹ' },
+      warning: { bg: 'bg-orange-50', border: 'border-orange-500', text: 'text-orange-800', icon: '⚠' },
+    };
+    const color = colors[notification.type];
+
+    return (
+      <div
+        key={notification.id}
+        onClick={() => removeNotification(notification.id)}
+        className={`${color.bg} ${color.border} ${color.text} border-2 rounded-lg p-3 shadow-lg cursor-pointer flex items-center gap-3 font-medium animate-slide-in-right max-w-md`}
+      >
+        <span className="text-lg font-bold">{color.icon}</span>
+        <span className="flex-1">{notification.message}</span>
+      </div>
+    );
+  };
+
+  const renderBootstrapNotification = (notification: Notification) => {
+    const alertTypes = {
+      success: 'alert-success',
+      error: 'alert-danger',
+      info: 'alert-info',
+      warning: 'alert-warning',
+    };
+
+    return (
+      <div
+        key={notification.id}
+        className={`alert ${alertTypes[notification.type]} alert-dismissible fade show d-flex align-items-center gap-2`}
+        role="alert"
+        style={{ cursor: 'pointer', maxWidth: '400px' }}
+        onClick={() => removeNotification(notification.id)}
+      >
+        <strong>
+          {notification.type === 'success' && '✓'}
+          {notification.type === 'error' && '✕'}
+          {notification.type === 'info' && 'ℹ'}
+          {notification.type === 'warning' && '⚠'}
+        </strong>
+        {notification.message}
+        <button
+          type="button"
+          className="btn-close"
+          onClick={(e) => {
+            e.stopPropagation();
+            removeNotification(notification.id);
+          }}
+          aria-label="Close"
+        ></button>
+      </div>
+    );
+  };
+
+  const renderMuiNotification = (notification: Notification) => {
+    const severityMap = {
+      success: 'success' as const,
+      error: 'error' as const,
+      info: 'info' as const,
+      warning: 'warning' as const,
+    };
+
+    const icons = {
+      success: '✓',
+      error: '✕',
+      info: 'ℹ',
+      warning: '⚠',
+    };
+
+    return (
+      <Snackbar
+        key={notification.id}
+        open={true}
+        autoHideDuration={5000}
+        onClose={() => removeNotification(notification.id)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ mt: 2 }}
+      >
+        <Alert
+          onClose={() => removeNotification(notification.id)}
+          severity={severityMap[notification.type]}
+          sx={{ width: '100%', cursor: 'pointer' }}
+          icon={<span style={{ fontSize: '18px', fontWeight: 'bold' }}>{icons[notification.type]}</span>}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
+    );
+  };
+
   return (
     <NotificationContext.Provider value={{ showNotification, showSuccess, showError, showInfo, showWarning }}>
       {children}
@@ -54,51 +150,30 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
           maxWidth: '400px',
         }}
       >
-        {notifications.map((notification) => {
-          const colors = {
-            success: { bg: '#e6f7e6', border: '#4caf50', text: '#2e7d32', icon: '✓' },
-            error: { bg: '#ffebee', border: '#f44336', text: '#c62828', icon: '✕' },
-            info: { bg: '#e3f2fd', border: '#2196f3', text: '#1565c0', icon: 'ℹ' },
-            warning: { bg: '#fff3e0', border: '#ff9800', text: '#e65100', icon: '⚠' },
-          };
-          const color = colors[notification.type];
-
-          return (
-            <div
-              key={notification.id}
-              onClick={() => removeNotification(notification.id)}
-              style={{
-                backgroundColor: color.bg,
-                border: `2px solid ${color.border}`,
-                color: color.text,
-                padding: '12px 16px',
-                borderRadius: '8px',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                fontWeight: 500,
-                animation: 'slideIn 0.3s ease-out',
-              }}
-            >
-              <span style={{ fontSize: '18px', fontWeight: 'bold' }}>{color.icon}</span>
-              <span style={{ flex: 1 }}>{notification.message}</span>
-              <style>{`
-                @keyframes slideIn {
-                  from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                  }
-                  to {
-                    transform: translateX(0);
-                    opacity: 1;
-                  }
+        {library === 'mui' ? (
+          notifications.map((notification) => renderMuiNotification(notification))
+        ) : library === 'bootstrap' ? (
+          notifications.map((notification) => renderBootstrapNotification(notification))
+        ) : (
+          <>
+            {notifications.map((notification) => renderTailwindNotification(notification))}
+            <style>{`
+              @keyframes slide-in-right {
+                from {
+                  transform: translateX(100%);
+                  opacity: 0;
                 }
-              `}</style>
-            </div>
-          );
-        })}
+                to {
+                  transform: translateX(0);
+                  opacity: 1;
+                }
+              }
+              .animate-slide-in-right {
+                animation: slide-in-right 0.3s ease-out;
+              }
+            `}</style>
+          </>
+        )}
       </div>
     </NotificationContext.Provider>
   );

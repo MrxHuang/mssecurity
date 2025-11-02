@@ -26,15 +26,15 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <NotificationProvider>
-          <ConfirmProvider>
-            <AuthProvider>
-              <UiLibraryProvider>
+        <UiLibraryProvider>
+          <NotificationProvider>
+            <ConfirmProvider>
+              <AuthProvider>
                 <App />
-              </UiLibraryProvider>
-            </AuthProvider>
-          </ConfirmProvider>
-        </NotificationProvider>
+              </AuthProvider>
+            </ConfirmProvider>
+          </NotificationProvider>
+        </UiLibraryProvider>
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>
