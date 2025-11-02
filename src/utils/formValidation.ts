@@ -20,3 +20,4 @@ export function validateNumber(value: string): boolean {
   return !isNaN(Number(value)) && value.trim().length > 0;
 }
 
+
