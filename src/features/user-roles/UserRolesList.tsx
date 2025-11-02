@@ -3,6 +3,7 @@ import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { formatDateOnly } from '../../utils/dateFormatter';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type UserRole = {
   id: string;
@@ -15,6 +16,7 @@ type UserRole = {
 const UserRolesList: React.FC = () => {
   const [rows, setRows] = useState<UserRole[]>([]);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -28,14 +30,18 @@ const UserRolesList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: UserRole) => {
-    if (!confirm('¿Eliminar esta asignación usuario-rol?')) return;
-    try {
-      await apiClient.delete(`/api/user-roles/${row.id}`);
-      showSuccess('Asignación eliminada correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar la asignación');
-    }
+    confirm({
+      message: '¿Eliminar esta asignación usuario-rol?',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/user-roles/${row.id}`);
+          showSuccess('Asignación eliminada correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar la asignación');
+        }
+      },
+    });
   };
 
   return (

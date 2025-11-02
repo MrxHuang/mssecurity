@@ -4,6 +4,7 @@ import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { formatDate } from '../../utils/dateFormatter';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type Profile = {
   id: number;
@@ -17,6 +18,7 @@ type Profile = {
 const ProfilesList: React.FC = () => {
   const [rows, setRows] = useState<Profile[]>([]);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -30,14 +32,18 @@ const ProfilesList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: Profile) => {
-    if (!confirm('¿Eliminar este perfil?')) return;
-    try {
-      await apiClient.delete(`/api/profiles/${row.id}`);
-      showSuccess('Perfil eliminado correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar el perfil');
-    }
+    confirm({
+      message: '¿Eliminar este perfil?',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/profiles/${row.id}`);
+          showSuccess('Perfil eliminado correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar el perfil');
+        }
+      },
+    });
   };
 
   return (

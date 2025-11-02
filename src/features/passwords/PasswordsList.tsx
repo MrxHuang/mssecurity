@@ -3,6 +3,7 @@ import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { formatDate } from '../../utils/dateFormatter';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type Password = {
   id: number;
@@ -14,6 +15,7 @@ type Password = {
 const PasswordsList: React.FC = () => {
   const [rows, setRows] = useState<Password[]>([]);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -27,14 +29,18 @@ const PasswordsList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: Password) => {
-    if (!confirm('¿Eliminar este registro de contraseña?')) return;
-    try {
-      await apiClient.delete(`/api/passwords/${row.id}`);
-      showSuccess('Registro de contraseña eliminado correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar el registro');
-    }
+    confirm({
+      message: '¿Eliminar este registro de contraseña?',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/passwords/${row.id}`);
+          showSuccess('Registro de contraseña eliminado correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar el registro');
+        }
+      },
+    });
   };
 
   return (

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type Answer = {
   id: number;
@@ -13,6 +14,7 @@ type Answer = {
 const AnswersList: React.FC = () => {
   const [rows, setRows] = useState<Answer[]>([]);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -26,14 +28,18 @@ const AnswersList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: Answer) => {
-    if (!confirm('¿Eliminar esta respuesta?')) return;
-    try {
-      await apiClient.delete(`/api/answers/${row.id}`);
-      showSuccess('Respuesta eliminada correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar la respuesta');
-    }
+    confirm({
+      message: '¿Eliminar esta respuesta?',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/answers/${row.id}`);
+          showSuccess('Respuesta eliminada correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar la respuesta');
+        }
+      },
+    });
   };
 
   return (

@@ -3,6 +3,7 @@ import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { formatDate } from '../../utils/dateFormatter';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type Address = {
   id: number;
@@ -16,6 +17,7 @@ type Address = {
 const AddressesList: React.FC = () => {
   const [rows, setRows] = useState<Address[]>([]);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -29,14 +31,18 @@ const AddressesList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: Address) => {
-    if (!confirm('¿Eliminar esta dirección?')) return;
-    try {
-      await apiClient.delete(`/api/addresses/${row.id}`);
-      showSuccess('Dirección eliminada correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar la dirección');
-    }
+    confirm({
+      message: '¿Eliminar esta dirección?',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/addresses/${row.id}`);
+          showSuccess('Dirección eliminada correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar la dirección');
+        }
+      },
+    });
   };
 
   return (

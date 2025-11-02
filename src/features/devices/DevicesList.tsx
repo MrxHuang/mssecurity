@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type Device = {
   id: number;
@@ -14,6 +15,7 @@ type Device = {
 const DevicesList: React.FC = () => {
   const [rows, setRows] = useState<Device[]>([]);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -27,14 +29,18 @@ const DevicesList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: Device) => {
-    if (!confirm('¿Eliminar este dispositivo?')) return;
-    try {
-      await apiClient.delete(`/api/devices/${row.id}`);
-      showSuccess('Dispositivo eliminado correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar el dispositivo');
-    }
+    confirm({
+      message: '¿Eliminar este dispositivo?',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/devices/${row.id}`);
+          showSuccess('Dispositivo eliminado correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar el dispositivo');
+        }
+      },
+    });
   };
 
   return (

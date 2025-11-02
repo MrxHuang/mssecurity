@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type Role = {
   id: number;
@@ -12,6 +13,7 @@ type Role = {
 const RolesList: React.FC = () => {
   const [rows, setRows] = useState<Role[]>([]);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -25,14 +27,18 @@ const RolesList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: Role) => {
-    if (!confirm('¿Eliminar este rol?')) return;
-    try {
-      await apiClient.delete(`/api/roles/${row.id}`);
-      showSuccess('Rol eliminado correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar el rol');
-    }
+    confirm({
+      message: '¿Eliminar este rol?',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/roles/${row.id}`);
+          showSuccess('Rol eliminado correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar el rol');
+        }
+      },
+    });
   };
 
   return (

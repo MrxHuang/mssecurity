@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type User = {
   id: number;
@@ -13,6 +14,7 @@ const UsersList: React.FC = () => {
   const [rows, setRows] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -29,14 +31,18 @@ const UsersList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: User) => {
-    if (!confirm(`¿Eliminar usuario ${row.name}?`)) return;
-    try {
-      await apiClient.delete(`/api/users/${row.id}`);
-      showSuccess('Usuario eliminado correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar el usuario');
-    }
+    confirm({
+      message: `¿Eliminar usuario ${row.name}?`,
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/users/${row.id}`);
+          showSuccess('Usuario eliminado correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar el usuario');
+        }
+      },
+    });
   };
 
   return (

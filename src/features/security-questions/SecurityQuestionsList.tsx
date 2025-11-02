@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type SecurityQuestion = {
   id: number;
@@ -12,6 +13,7 @@ type SecurityQuestion = {
 const SecurityQuestionsList: React.FC = () => {
   const [rows, setRows] = useState<SecurityQuestion[]>([]);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -25,14 +27,18 @@ const SecurityQuestionsList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: SecurityQuestion) => {
-    if (!confirm('¿Eliminar esta pregunta de seguridad?')) return;
-    try {
-      await apiClient.delete(`/api/security-questions/${row.id}`);
-      showSuccess('Pregunta de seguridad eliminada correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar la pregunta');
-    }
+    confirm({
+      message: '¿Eliminar esta pregunta de seguridad?',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/security-questions/${row.id}`);
+          showSuccess('Pregunta de seguridad eliminada correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar la pregunta');
+        }
+      },
+    });
   };
 
   return (

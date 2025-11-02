@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type Permission = {
   id: number;
@@ -13,6 +14,7 @@ type Permission = {
 const PermissionsList: React.FC = () => {
   const [rows, setRows] = useState<Permission[]>([]);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -26,14 +28,18 @@ const PermissionsList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: Permission) => {
-    if (!confirm('¿Eliminar este permiso?')) return;
-    try {
-      await apiClient.delete(`/api/permissions/${row.id}`);
-      showSuccess('Permiso eliminado correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar el permiso');
-    }
+    confirm({
+      message: '¿Eliminar este permiso?',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/permissions/${row.id}`);
+          showSuccess('Permiso eliminado correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar el permiso');
+        }
+      },
+    });
   };
 
   return (

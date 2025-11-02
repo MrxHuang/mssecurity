@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type RolePermission = {
   id: number;
@@ -12,6 +13,7 @@ type RolePermission = {
 const RolePermissionsList: React.FC = () => {
   const [rows, setRows] = useState<RolePermission[]>([]);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -25,14 +27,18 @@ const RolePermissionsList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: RolePermission) => {
-    if (!confirm('¿Eliminar esta relación rol-permiso?')) return;
-    try {
-      await apiClient.delete(`/api/role-permissions/${row.id}`);
-      showSuccess('Relación eliminada correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar la relación');
-    }
+    confirm({
+      message: '¿Eliminar esta relación rol-permiso?',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/role-permissions/${row.id}`);
+          showSuccess('Relación eliminada correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar la relación');
+        }
+      },
+    });
   };
 
   return (

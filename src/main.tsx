@@ -6,6 +6,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './auth/AuthContext';
 import { UiLibraryProvider } from './context/UiLibraryContext';
 import { NotificationProvider } from './utils/notifications';
+import { ConfirmProvider } from './utils/confirmDialog';
 import App from './App.tsx';
 import './index.css';
 
@@ -26,11 +27,13 @@ createRoot(document.getElementById('root')!).render(
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <NotificationProvider>
-          <AuthProvider>
-            <UiLibraryProvider>
-              <App />
-            </UiLibraryProvider>
-          </AuthProvider>
+          <ConfirmProvider>
+            <AuthProvider>
+              <UiLibraryProvider>
+                <App />
+              </UiLibraryProvider>
+            </AuthProvider>
+          </ConfirmProvider>
         </NotificationProvider>
       </ThemeProvider>
     </BrowserRouter>

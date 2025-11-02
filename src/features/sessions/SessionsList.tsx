@@ -3,6 +3,7 @@ import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { formatDate } from '../../utils/dateFormatter';
 import { useNotifications } from '../../utils/notifications';
+import { useConfirm } from '../../utils/confirmDialog';
 
 type Session = {
   id: string;
@@ -15,6 +16,7 @@ type Session = {
 const SessionsList: React.FC = () => {
   const [rows, setRows] = useState<Session[]>([]);
   const { showError, showSuccess } = useNotifications();
+  const { confirm } = useConfirm();
 
   const load = async () => {
     try {
@@ -28,14 +30,18 @@ const SessionsList: React.FC = () => {
   useEffect(() => { load(); }, []);
 
   const handleDelete = async (row: Session) => {
-    if (!confirm('¿Eliminar esta sesión?')) return;
-    try {
-      await apiClient.delete(`/api/sessions/${row.id}`);
-      showSuccess('Sesión eliminada correctamente');
-      await load();
-    } catch (err) {
-      showError('Error al eliminar la sesión');
-    }
+    confirm({
+      message: '¿Eliminar esta sesión?',
+      onConfirm: async () => {
+        try {
+          await apiClient.delete(`/api/sessions/${row.id}`);
+          showSuccess('Sesión eliminada correctamente');
+          await load();
+        } catch (err) {
+          showError('Error al eliminar la sesión');
+        }
+      },
+    });
   };
 
   return (
