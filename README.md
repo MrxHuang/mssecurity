@@ -15,6 +15,9 @@ Aplicación web fullstack que implementa un sistema de seguridad integral con la
   - Bootstrap 5
 - **Componentes Genéricos**: Sistema de componentes reutilizables que se adaptan automáticamente a la librería UI seleccionada
 - **Gestión Completa**: CRUDs para múltiples entidades con relaciones de base de datos (1:1, 1:N, N:N)
+- **Sistema de Notificaciones**: Notificaciones toast adaptables que cambian según la librería UI seleccionada (Tailwind, Bootstrap, MUI)
+- **Diálogos de Confirmación**: Sistema de confirmación personalizado adaptado a cada librería UI
+- **Dashboard Dinámico**: Panel de control con conteos en tiempo real de todas las entidades
 
 ## Requisitos del Sistema
 
@@ -174,6 +177,11 @@ ms_security/
 │   │   └── UiLibrarySwitcher.tsx # Selector de librería UI
 │   ├── context/                  # Contextos de React
 │   │   └── UiLibraryContext.tsx  # Contexto para librería UI
+│   ├── utils/                    # Utilidades
+│   │   ├── notifications.tsx     # Sistema de notificaciones adaptable
+│   │   ├── confirmDialog.tsx     # Diálogos de confirmación adaptable
+│   │   ├── dateFormatter.ts      # Formateo de fechas
+│   │   └── formValidation.ts     # Validación de formularios
 │   ├── features/                 # Módulos por entidad
 │   │   ├── addresses/            # Direcciones
 │   │   ├── answers/              # Respuestas
@@ -191,13 +199,10 @@ ms_security/
 │   ├── lib/                      # Cliente API
 │   │   └── api.ts                # Configuración Axios
 │   ├── pages/                    # Páginas principales
-│   │   ├── Dashboard.tsx         # Panel de control
+│   │   ├── Dashboard.tsx         # Panel de control con conteos dinámicos
 │   │   └── Login.tsx             # Página de login
-│   ├── routes/                   # Guards y rutas protegidas
-│   │   └── ProtectedRoute.tsx    # Componente de ruta protegida
-│   └── utils/                    # Utilidades
-│       ├── dateFormatter.ts      # Formateo de fechas
-│       └── formValidation.ts     # Validación de formularios
+│   └── routes/                   # Guards y rutas protegidas
+│       └── ProtectedRoute.tsx    # Componente de ruta protegida
 ├── requirements.txt              # Dependencias Python
 ├── package.json                  # Dependencias Node.js
 └── vite.config.ts               # Configuración de Vite
@@ -232,6 +237,41 @@ El sistema incluye componentes genéricos reutilizables que se adaptan automáti
 
 Estos componentes permiten crear CRUDs completos con mínimo código, adaptándose automáticamente a Tailwind CSS, Material UI o Bootstrap según la selección del usuario.
 
+### Sistema de Notificaciones
+
+El sistema implementa un sistema completo de notificaciones toast que se adapta automáticamente a la librería UI seleccionada:
+
+- **Tailwind CSS**: Notificaciones con clases de Tailwind y animaciones personalizadas
+- **Bootstrap**: Alertas nativas de Bootstrap (`alert-success`, `alert-danger`, etc.)
+- **Material UI**: Componentes `Snackbar` y `Alert` de MUI
+
+Tipos de notificaciones disponibles:
+- `showSuccess()`: Mensajes de éxito (operaciones completadas)
+- `showError()`: Mensajes de error (operaciones fallidas)
+- `showWarning()`: Advertencias (validaciones, sesión expirada)
+- `showInfo()`: Información general
+
+Todas las notificaciones se muestran automáticamente durante 5 segundos y pueden cerrarse haciendo clic en ellas.
+
+### Diálogos de Confirmación
+
+Sistema de confirmación personalizado que reemplaza los `confirm()` nativos del navegador:
+
+- **Tailwind CSS**: Modal con diseño moderno usando clases de Tailwind
+- **Bootstrap**: Modal nativo de Bootstrap con estilos consistentes
+- **Material UI**: Dialog de MUI con Material Design
+
+Se utiliza automáticamente en todas las operaciones de eliminación en las tablas, proporcionando una experiencia de usuario consistente y profesional.
+
+### Dashboard
+
+El dashboard principal muestra:
+
+- **Conteos en Tiempo Real**: Estadísticas dinámicas de todas las entidades del sistema (usuarios, perfiles, sesiones, roles, permisos, etc.)
+- **Tarjetas de Acceso Rápido**: Acceso directo a cada módulo de gestión
+- **Acciones Rápidas**: Botones de acceso rápido para crear nuevos registros
+- **Actualización Automática**: Los conteos se actualizan automáticamente desde la API al cargar la página
+
 ### Gestión de Entidades
 
 El sistema incluye CRUDs completos para las siguientes entidades:
@@ -259,8 +299,9 @@ Cada módulo permite:
 - Listar registros con paginación y ordenamiento
 - Crear nuevos registros mediante formularios adaptativos
 - Editar registros existentes
-- Eliminar registros con confirmación
+- Eliminar registros con diálogo de confirmación adaptable
 - Visualizar detalles completos de cada registro
+- Notificaciones automáticas para todas las operaciones (éxito, error, advertencia)
 
 ## API Endpoints
 
@@ -367,8 +408,44 @@ El sistema implementa una arquitectura flexible que permite cambiar dinámicamen
 
 1. **Context Provider**: `UiLibraryContext` mantiene el estado de la librería UI seleccionada
 2. **Componentes Genéricos**: `GenericForm`, `GenericList` y `GenericDetailView` detectan la librería activa y renderizan el componente apropiado
-3. **Adaptación Automática**: Todos los componentes se adaptan sin recargar la página
-4. **Consistencia Visual**: Cada librería mantiene su propia identidad visual mientras se preserva la funcionalidad
+3. **Sistema de Notificaciones Adaptable**: `NotificationProvider` renderiza notificaciones según la librería seleccionada (Tailwind/Bootstrap/MUI)
+4. **Diálogos de Confirmación Adaptables**: `ConfirmProvider` muestra diálogos de confirmación adaptados a cada librería UI
+5. **Adaptación Automática**: Todos los componentes se adaptan sin recargar la página
+6. **Consistencia Visual**: Cada librería mantiene su propia identidad visual mientras se preserva la funcionalidad
+
+### Jerarquía de Providers
+
+```
+ThemeProvider (MUI)
+└── UiLibraryProvider
+    └── NotificationProvider
+        └── ConfirmProvider
+            └── AuthProvider
+                └── App
+```
+
+Esta jerarquía garantiza que:
+- Los providers de notificaciones y confirmación tengan acceso al contexto de UI
+- Todos los componentes puedan usar las notificaciones y confirmaciones
+- El tema de MUI esté disponible cuando se seleccione Material UI
+
+## Características de Experiencia de Usuario
+
+### Retroalimentación Visual
+- **Notificaciones Toast**: Todas las operaciones CRUD muestran notificaciones apropiadas (éxito, error, advertencia)
+- **Confirmaciones Elegantes**: Diálogos de confirmación personalizados que reemplazan los alerts nativos del navegador
+- **Loading States**: Indicadores de carga durante operaciones asíncronas
+- **Manejo de Errores**: Mensajes de error descriptivos y contextuales
+
+### Accesibilidad
+- **Navegación Intuitiva**: Rutas claras y navegación consistente en toda la aplicación
+- **Acciones Rápidas**: Acceso directo a operaciones comunes desde el dashboard
+- **Validación en Tiempo Real**: Los formularios validan campos mientras el usuario escribe
+
+### Sesión de Usuario
+- **Timeout Automático**: El sistema cierra la sesión después de 30 minutos de inactividad
+- **Notificación de Expiración**: Mensaje de advertencia cuando la sesión expira
+- **Persistencia de Estado**: La selección de librería UI se guarda en localStorage
 
 ## Notas Adicionales
 
@@ -376,6 +453,7 @@ El sistema implementa una arquitectura flexible que permite cambiar dinámicamen
 - **Autenticación**: Los tokens de autenticación se almacenan en localStorage del navegador.
 - **Producción**: Para despliegue en producción, configurar variables de entorno apropiadas y utilizar HTTPS.
 - **Componentes Genéricos**: Los componentes genéricos están diseñados para ser altamente reutilizables y extensibles. Pueden personalizarse mediante props y callbacks.
+- **Sistema de Notificaciones**: Reemplaza completamente los `alert()` y `confirm()` nativos del navegador, proporcionando una experiencia más profesional y consistente.
 - **TypeScript**: Todo el código frontend está tipado con TypeScript para mayor seguridad y mantenibilidad.
 
 ## Licencia
