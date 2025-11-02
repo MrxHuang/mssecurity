@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
 import { validateRequired, validateEmail } from '../../utils/formValidation';
+import { useNotifications } from '../../utils/notifications';
 
 type UserInput = {
   name: string;
@@ -14,6 +15,7 @@ const UserEdit: React.FC = () => {
   const navigate = useNavigate();
   const isNew = id === 'new';
   const [value, setValue] = useState<UserInput>({ name: '', email: '' });
+  const { showError, showSuccess, showWarning } = useNotifications();
 
   useEffect(() => {
     if (!isNew) {
@@ -22,32 +24,34 @@ const UserEdit: React.FC = () => {
           const { data } = await apiClient.get(`/api/users/${id}`);
           setValue({ name: data.name, email: data.email });
         } catch (err) {
-          alert('Error al cargar el usuario');
+          showError('Error al cargar el usuario');
         }
       })();
     }
-  }, [id, isNew]);
+  }, [id, isNew, showError]);
 
   const save = async () => {
     // Validaciones
     if (!validateRequired(value.name)) {
-      alert('El nombre es obligatorio');
+      showWarning('El nombre es obligatorio');
       return;
     }
     if (!validateRequired(value.email)) {
-      alert('El correo electrónico es obligatorio');
+      showWarning('El correo electrónico es obligatorio');
       return;
     }
     if (!validateEmail(value.email)) {
-      alert('El correo electrónico no es válido');
+      showWarning('El correo electrónico no es válido');
       return;
     }
 
     try {
       if (isNew) {
         await apiClient.post('/api/users/', value);
+        showSuccess('Usuario creado correctamente');
       } else {
         await apiClient.put(`/api/users/${id}`, value);
+        showSuccess('Usuario actualizado correctamente');
       }
       navigate('/users');
     } catch (err: any) {
@@ -59,7 +63,7 @@ const UserEdit: React.FC = () => {
       } else if (err.response?.data?.message) {
         errorMsg = err.response.data.message;
       }
-      alert(errorMsg);
+      showError(errorMsg);
     }
   };
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
+import { useNotifications } from '../../utils/notifications';
 
 type DeviceInput = {
   user_id: string;
@@ -15,6 +16,7 @@ const DeviceEdit: React.FC = () => {
   const navigate = useNavigate();
   const isNew = id === 'new';
   const [value, setValue] = useState<DeviceInput>({ user_id: '', name: '', ip: '', operating_system: '' });
+  const { showError, showSuccess } = useNotifications();
 
   useEffect(() => {
     if (!isNew) {
@@ -23,23 +25,25 @@ const DeviceEdit: React.FC = () => {
           const { data } = await apiClient.get(`/api/devices/${id}`);
           setValue({ user_id: String(data.user_id), name: data.name || '', ip: data.ip || '', operating_system: data.operating_system || '' });
         } catch {
-          alert('Error al cargar el dispositivo');
+          showError('Error al cargar el dispositivo');
         }
       })();
     }
-  }, [id, isNew]);
+  }, [id, isNew, showError]);
 
   const save = async () => {
     try {
       const payload = { name: value.name, ip: value.ip, operating_system: value.operating_system };
       if (isNew) {
         await apiClient.post(`/api/devices/user/${value.user_id}`, payload);
+        showSuccess('Dispositivo registrado correctamente');
       } else {
         await apiClient.put(`/api/devices/${id}`, payload);
+        showSuccess('Dispositivo actualizado correctamente');
       }
       navigate('/devices');
     } catch {
-      alert('Error al guardar el dispositivo');
+      showError('Error al guardar el dispositivo');
     }
   };
 

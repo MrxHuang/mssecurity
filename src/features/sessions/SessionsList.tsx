@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { formatDate } from '../../utils/dateFormatter';
+import { useNotifications } from '../../utils/notifications';
 
 type Session = {
   id: string;
@@ -13,13 +14,14 @@ type Session = {
 
 const SessionsList: React.FC = () => {
   const [rows, setRows] = useState<Session[]>([]);
+  const { showError, showSuccess } = useNotifications();
 
   const load = async () => {
     try {
       const { data } = await apiClient.get('/api/sessions/');
       setRows(data);
     } catch (err) {
-      alert('Error al cargar las sesiones');
+      showError('Error al cargar las sesiones');
     }
   };
 
@@ -29,9 +31,10 @@ const SessionsList: React.FC = () => {
     if (!confirm('¿Eliminar esta sesión?')) return;
     try {
       await apiClient.delete(`/api/sessions/${row.id}`);
+      showSuccess('Sesión eliminada correctamente');
       await load();
     } catch (err) {
-      alert('Error al eliminar la sesión');
+      showError('Error al eliminar la sesión');
     }
   };
 

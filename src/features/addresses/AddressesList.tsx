@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { formatDate } from '../../utils/dateFormatter';
+import { useNotifications } from '../../utils/notifications';
 
 type Address = {
   id: number;
@@ -14,13 +15,14 @@ type Address = {
 
 const AddressesList: React.FC = () => {
   const [rows, setRows] = useState<Address[]>([]);
+  const { showError, showSuccess } = useNotifications();
 
   const load = async () => {
     try {
       const { data } = await apiClient.get('/api/addresses/');
       setRows(data);
     } catch (err) {
-      alert('Error al cargar las direcciones');
+      showError('Error al cargar las direcciones');
     }
   };
 
@@ -30,9 +32,10 @@ const AddressesList: React.FC = () => {
     if (!confirm('¿Eliminar esta dirección?')) return;
     try {
       await apiClient.delete(`/api/addresses/${row.id}`);
+      showSuccess('Dirección eliminada correctamente');
       await load();
     } catch (err) {
-      alert('Error al eliminar la dirección');
+      showError('Error al eliminar la dirección');
     }
   };
 

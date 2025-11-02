@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
 import { validateRequired, validateNumber } from '../../utils/formValidation';
+import { useNotifications } from '../../utils/notifications';
 
 type ProfileInput = {
   user_id: string;
@@ -15,6 +16,7 @@ const ProfileEdit: React.FC = () => {
   const navigate = useNavigate();
   const isNew = id === 'new';
   const [value, setValue] = useState<ProfileInput>({ user_id: '', phone: '', photo: '' });
+  const { showError, showSuccess, showWarning } = useNotifications();
 
   useEffect(() => {
     if (!isNew) {
@@ -27,26 +29,26 @@ const ProfileEdit: React.FC = () => {
             photo: data.photo || '' 
           });
         } catch (err) {
-          alert('Error al cargar el perfil');
+          showError('Error al cargar el perfil');
         }
       })();
     }
-  }, [id, isNew]);
+  }, [id, isNew, showError]);
 
   const save = async () => {
     // Validaciones
     if (!validateRequired(value.phone)) {
-      alert('El teléfono es obligatorio');
+      showWarning('El teléfono es obligatorio');
       return;
     }
     
     if (isNew && !validateRequired(value.user_id)) {
-      alert('El User ID es obligatorio');
+      showWarning('El User ID es obligatorio');
       return;
     }
 
     if (isNew && !validateNumber(value.user_id)) {
-      alert('El User ID debe ser un número válido');
+      showWarning('El User ID debe ser un número válido');
       return;
     }
     
@@ -54,8 +56,10 @@ const ProfileEdit: React.FC = () => {
       const payload = { phone: value.phone.trim(), photo: value.photo?.trim() || null };
       if (isNew) {
         await apiClient.post(`/api/profiles/user/${value.user_id}`, payload);
+        showSuccess('Perfil creado correctamente');
       } else {
         await apiClient.put(`/api/profiles/${id}`, payload);
+        showSuccess('Perfil actualizado correctamente');
       }
       navigate('/profiles');
     } catch (err: any) {
@@ -75,7 +79,7 @@ const ProfileEdit: React.FC = () => {
         errorMsg = err.message;
       }
       
-      alert(errorMsg);
+      showError(errorMsg);
     }
   };
 

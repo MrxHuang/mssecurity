@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
+import { useNotifications } from '../../utils/notifications';
 
 type SecurityQuestionInput = {
   name: string;
@@ -13,6 +14,7 @@ const SecurityQuestionEdit: React.FC = () => {
   const navigate = useNavigate();
   const isNew = id === 'new';
   const [value, setValue] = useState<SecurityQuestionInput>({ name: '', description: '' });
+  const { showError, showSuccess } = useNotifications();
 
   useEffect(() => {
     if (!isNew) {
@@ -21,22 +23,24 @@ const SecurityQuestionEdit: React.FC = () => {
           const { data } = await apiClient.get(`/api/security-questions/${id}`);
           setValue({ name: data.name || '', description: data.description || '' });
         } catch {
-          alert('Error al cargar la pregunta');
+          showError('Error al cargar la pregunta');
         }
       })();
     }
-  }, [id, isNew]);
+  }, [id, isNew, showError]);
 
   const save = async () => {
     try {
       if (isNew) {
         await apiClient.post('/api/security-questions/', value);
+        showSuccess('Pregunta de seguridad creada correctamente');
       } else {
         await apiClient.put(`/api/security-questions/${id}`, value);
+        showSuccess('Pregunta de seguridad actualizada correctamente');
       }
       navigate('/security-questions');
     } catch {
-      alert('Error al guardar la pregunta');
+      showError('Error al guardar la pregunta');
     }
   };
 

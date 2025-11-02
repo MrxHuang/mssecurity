@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
+import { useNotifications } from '../../utils/notifications';
 
 type SecurityQuestion = {
   id: number;
@@ -10,13 +11,14 @@ type SecurityQuestion = {
 
 const SecurityQuestionsList: React.FC = () => {
   const [rows, setRows] = useState<SecurityQuestion[]>([]);
+  const { showError, showSuccess } = useNotifications();
 
   const load = async () => {
     try {
       const { data } = await apiClient.get('/api/security-questions/');
       setRows(data);
     } catch (err) {
-      alert('Error al cargar las preguntas de seguridad');
+      showError('Error al cargar las preguntas de seguridad');
     }
   };
 
@@ -26,9 +28,10 @@ const SecurityQuestionsList: React.FC = () => {
     if (!confirm('¿Eliminar esta pregunta de seguridad?')) return;
     try {
       await apiClient.delete(`/api/security-questions/${row.id}`);
+      showSuccess('Pregunta de seguridad eliminada correctamente');
       await load();
     } catch (err) {
-      alert('Error al eliminar la pregunta');
+      showError('Error al eliminar la pregunta');
     }
   };
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
+import { useNotifications } from '../../utils/notifications';
 
 type Device = {
   id: number;
@@ -12,13 +13,14 @@ type Device = {
 
 const DevicesList: React.FC = () => {
   const [rows, setRows] = useState<Device[]>([]);
+  const { showError, showSuccess } = useNotifications();
 
   const load = async () => {
     try {
       const { data } = await apiClient.get('/api/devices/');
       setRows(data);
     } catch (err) {
-      alert('Error al cargar los dispositivos');
+      showError('Error al cargar los dispositivos');
     }
   };
 
@@ -28,9 +30,10 @@ const DevicesList: React.FC = () => {
     if (!confirm('¿Eliminar este dispositivo?')) return;
     try {
       await apiClient.delete(`/api/devices/${row.id}`);
+      showSuccess('Dispositivo eliminado correctamente');
       await load();
     } catch (err) {
-      alert('Error al eliminar el dispositivo');
+      showError('Error al eliminar el dispositivo');
     }
   };
 

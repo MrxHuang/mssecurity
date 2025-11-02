@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
+import { useNotifications } from '../../utils/notifications';
 
 type DigitalSignatureInput = {
   user_id: string;
@@ -13,6 +14,7 @@ const DigitalSignatureEdit: React.FC = () => {
   const navigate = useNavigate();
   const isNew = id === 'new';
   const [value, setValue] = useState<DigitalSignatureInput>({ user_id: '', photo: '' });
+  const { showError, showSuccess } = useNotifications();
 
   useEffect(() => {
     if (!isNew) {
@@ -21,23 +23,25 @@ const DigitalSignatureEdit: React.FC = () => {
           const { data } = await apiClient.get(`/api/digital-signatures/${id}`);
           setValue({ user_id: String(data.user_id), photo: data.photo || '' });
         } catch {
-          alert('Error al cargar la firma');
+          showError('Error al cargar la firma');
         }
       })();
     }
-  }, [id, isNew]);
+  }, [id, isNew, showError]);
 
   const save = async () => {
     try {
       const payload = { photo: value.photo };
       if (isNew) {
         await apiClient.post(`/api/digital-signatures/user/${value.user_id}`, payload);
+        showSuccess('Firma digital creada correctamente');
       } else {
         await apiClient.put(`/api/digital-signatures/${id}`, payload);
+        showSuccess('Firma digital actualizada correctamente');
       }
       navigate('/digital-signatures');
     } catch {
-      alert('Error al guardar la firma');
+      showError('Error al guardar la firma');
     }
   };
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { formatDate } from '../../utils/dateFormatter';
+import { useNotifications } from '../../utils/notifications';
 
 type Profile = {
   id: number;
@@ -15,13 +16,14 @@ type Profile = {
 
 const ProfilesList: React.FC = () => {
   const [rows, setRows] = useState<Profile[]>([]);
+  const { showError, showSuccess } = useNotifications();
 
   const load = async () => {
     try {
       const { data } = await apiClient.get('/api/profiles/');
       setRows(data);
     } catch (err) {
-      alert('Error al cargar los perfiles');
+      showError('Error al cargar los perfiles');
     }
   };
 
@@ -31,9 +33,10 @@ const ProfilesList: React.FC = () => {
     if (!confirm('¿Eliminar este perfil?')) return;
     try {
       await apiClient.delete(`/api/profiles/${row.id}`);
+      showSuccess('Perfil eliminado correctamente');
       await load();
     } catch (err) {
-      alert('Error al eliminar el perfil');
+      showError('Error al eliminar el perfil');
     }
   };
 

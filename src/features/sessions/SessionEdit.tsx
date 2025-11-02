@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
+import { useNotifications } from '../../utils/notifications';
 
 type SessionInput = {
   user_id: string;
@@ -22,6 +23,7 @@ const SessionEdit: React.FC = () => {
     state: 'active',
     FACode: '',
   });
+  const { showError, showSuccess, showWarning } = useNotifications();
 
   useEffect(() => {
     if (!isNew) {
@@ -42,26 +44,26 @@ const SessionEdit: React.FC = () => {
             FACode: data.FACode || '',
           });
         } catch (err) {
-          alert('Error al cargar la sesión');
+          showError('Error al cargar la sesión');
         }
       })();
     }
-  }, [id, isNew]);
+  }, [id, isNew, showError]);
 
   const save = async () => {
     try {
       if (!value.token || value.token.trim() === '') {
-        alert('El token es obligatorio');
+        showWarning('El token es obligatorio');
         return;
       }
       
       if (!value.expiration) {
-        alert('La fecha de expiración es obligatoria');
+        showWarning('La fecha de expiración es obligatoria');
         return;
       }
       
       if (isNew && (!value.user_id || value.user_id.trim() === '')) {
-        alert('El User ID es obligatorio');
+        showWarning('El User ID es obligatorio');
         return;
       }
       
@@ -79,8 +81,10 @@ const SessionEdit: React.FC = () => {
       
       if (isNew) {
         await apiClient.post(`/api/sessions/user/${value.user_id}`, payload);
+        showSuccess('Sesión creada correctamente');
       } else {
         await apiClient.put(`/api/sessions/${id}`, payload);
+        showSuccess('Sesión actualizada correctamente');
       }
       navigate('/sessions');
     } catch (err: any) {
@@ -100,7 +104,7 @@ const SessionEdit: React.FC = () => {
         errorMsg = err.message;
       }
       
-      alert(errorMsg);
+      showError(errorMsg);
     }
   };
 

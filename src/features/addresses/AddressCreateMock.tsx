@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/Layout';
 import apiClient from '../../lib/api';
 import { useUiLibrary } from '../../context/UiLibraryContext';
+import { useNotifications } from '../../utils/notifications';
 
 type AddressInput = {
   user_id: string;
@@ -16,13 +17,15 @@ const AddressCreateMock: React.FC = () => {
   const navigate = useNavigate();
   const { library } = useUiLibrary();
   const [value, setValue] = useState<AddressInput>({ user_id: '', street: '', number: '', latitude: '', longitude: '' });
+  const { showError, showSuccess } = useNotifications();
 
   const save = async () => {
     try {
       await apiClient.post(`/api/addresses/user/${value.user_id}`, { street: value.street, number: value.number, latitude: value.latitude, longitude: value.longitude });
+      showSuccess('Dirección creada correctamente');
       navigate('/addresses');
     } catch {
-      alert('Error al crear la dirección');
+      showError('Error al crear la dirección');
     }
   };
 

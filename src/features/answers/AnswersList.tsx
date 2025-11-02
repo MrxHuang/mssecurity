@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
+import { useNotifications } from '../../utils/notifications';
 
 type Answer = {
   id: number;
@@ -11,13 +12,14 @@ type Answer = {
 
 const AnswersList: React.FC = () => {
   const [rows, setRows] = useState<Answer[]>([]);
+  const { showError, showSuccess } = useNotifications();
 
   const load = async () => {
     try {
       const { data } = await apiClient.get('/api/answers/');
       setRows(data);
     } catch (err) {
-      alert('Error al cargar las respuestas');
+      showError('Error al cargar las respuestas');
     }
   };
 
@@ -27,9 +29,10 @@ const AnswersList: React.FC = () => {
     if (!confirm('¿Eliminar esta respuesta?')) return;
     try {
       await apiClient.delete(`/api/answers/${row.id}`);
+      showSuccess('Respuesta eliminada correctamente');
       await load();
     } catch (err) {
-      alert('Error al eliminar la respuesta');
+      showError('Error al eliminar la respuesta');
     }
   };
 

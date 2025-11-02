@@ -6,9 +6,28 @@ import { Users, FileText, Lock, Shield, UserPlus, FilePlus, Key, Target, MapPin,
 import { Card, CardContent, Button, Box, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import apiClient from '../lib/api';
+import { useNotifications } from '../utils/notifications';
+
+const QUICK_ACTIONS = [
+  { to: '/users/new', label: 'Crear Usuario', icon: UserPlus },
+  { to: '/profiles/new', label: 'Crear Perfil', icon: FilePlus },
+  { to: '/sessions/new', label: 'Nueva Sesión', icon: Key },
+  { to: '/user-roles/new', label: 'Asignar Rol', icon: Target },
+  { to: '/addresses/create', label: 'Crear Dirección', icon: MapPin },
+  { to: '/digital-signatures/new', label: 'Crear Firma', icon: PenTool },
+  { to: '/devices/new', label: 'Registrar Dispositivo', icon: Monitor },
+  { to: '/passwords/new', label: 'Nueva Contraseña', icon: Key },
+  { to: '/security-questions/new', label: 'Crear Pregunta', icon: HelpCircle },
+  { to: '/answers/new', label: 'Crear Respuesta', icon: MessageSquare },
+  { to: '/roles/new', label: 'Crear Rol (cat.)', icon: Shield },
+  { to: '/permissions/new', label: 'Crear Permiso', icon: CheckSquare },
+  { to: '/role-permissions/new', label: 'Asignar Permiso', icon: CheckSquare },
+];
 
 const Dashboard: React.FC = () => {
   const { library } = useUiLibrary();
+  const { showError } = useNotifications();
+  const [loading, setLoading] = useState(true);
   const [counts, setCounts] = useState({
     users: 0,
     profiles: 0,
@@ -73,7 +92,9 @@ const Dashboard: React.FC = () => {
         rolePermissions: Array.isArray(rolePermissionsRes.data) ? rolePermissionsRes.data.length : 0,
       });
     } catch (error) {
-      console.error('Error al cargar los conteos:', error);
+      showError('Error al cargar los conteos del dashboard');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -198,7 +219,7 @@ const Dashboard: React.FC = () => {
           <card.icon size={32} className="text-gray-900" />
         </div>
         <div className="text-3xl font-bold text-gray-900 tracking-tight">
-          {card.count}
+          {loading ? '-' : card.count}
         </div>
       </div>
       <div className="text-lg font-semibold text-gray-900 mb-1 tracking-tight">
@@ -232,7 +253,7 @@ const Dashboard: React.FC = () => {
             <card.icon size={32} color="#fff" />
           </div>
           <div className="fs-2 fw-bold">
-            {card.count}
+            {loading ? '-' : card.count}
           </div>
         </div>
         <h5 className="card-title fw-semibold mb-1">
@@ -264,7 +285,7 @@ const Dashboard: React.FC = () => {
                 <card.icon size={32} color="#1976d2" />
               </Box>
               <Typography variant="h4" component="div" sx={{ fontWeight: 700, letterSpacing: '-1px' }}>
-                {card.count}
+                {loading ? '-' : card.count}
               </Typography>
             </Box>
             <Typography variant="h6" component="div" sx={{ fontWeight: 600, mb: 0.5, letterSpacing: '-0.3px' }}>
@@ -316,29 +337,14 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  return (
-    <Layout>
-      {renderCards()}
-      {library === 'bootstrap' ? (
+  const renderQuickActions = () => {
+    if (library === 'bootstrap') {
+      return (
         <div className="card bg-light">
           <div className="card-body p-4">
             <h5 className="card-title fw-semibold mb-3">Acciones Rápidas</h5>
             <div className="row g-2">
-              {[
-                { to: '/users/new', label: 'Crear Usuario', icon: UserPlus },
-                { to: '/profiles/new', label: 'Crear Perfil', icon: FilePlus },
-                { to: '/sessions/new', label: 'Nueva Sesión', icon: Key },
-                { to: '/user-roles/new', label: 'Asignar Rol', icon: Target },
-                { to: '/addresses/create', label: 'Crear Dirección', icon: MapPin },
-                { to: '/digital-signatures/new', label: 'Crear Firma', icon: PenTool },
-                { to: '/devices/new', label: 'Registrar Dispositivo', icon: Monitor },
-                { to: '/passwords/new', label: 'Nueva Contraseña', icon: Key },
-                { to: '/security-questions/new', label: 'Crear Pregunta', icon: HelpCircle },
-                { to: '/answers/new', label: 'Crear Respuesta', icon: MessageSquare },
-                { to: '/roles/new', label: 'Crear Rol (cat.)', icon: Shield },
-                { to: '/permissions/new', label: 'Crear Permiso', icon: CheckSquare },
-                { to: '/role-permissions/new', label: 'Asignar Permiso', icon: CheckSquare },
-              ].map((action) => (
+              {QUICK_ACTIONS.map((action) => (
                 <div key={action.to} className="col-md-6 col-lg-4 col-xl-3">
                   <Link
                     to={action.to}
@@ -352,7 +358,9 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
-      ) : library === 'mui' ? (
+      );
+    } else if (library === 'mui') {
+      return (
         <Card>
           <CardContent sx={{ p: 3 }}>
             <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mb: 2.5, letterSpacing: '-0.3px' }}>
@@ -365,21 +373,7 @@ const Dashboard: React.FC = () => {
                 gap: 1.5
               }}
             >
-              {[
-                { to: '/users/new', label: 'Crear Usuario', icon: UserPlus },
-                { to: '/profiles/new', label: 'Crear Perfil', icon: FilePlus },
-                { to: '/sessions/new', label: 'Nueva Sesión', icon: Key },
-                { to: '/user-roles/new', label: 'Asignar Rol', icon: Target },
-                { to: '/addresses/create', label: 'Crear Dirección', icon: MapPin },
-                { to: '/digital-signatures/new', label: 'Crear Firma', icon: PenTool },
-                { to: '/devices/new', label: 'Registrar Dispositivo', icon: Monitor },
-                { to: '/passwords/new', label: 'Nueva Contraseña', icon: Key },
-                { to: '/security-questions/new', label: 'Crear Pregunta', icon: HelpCircle },
-                { to: '/answers/new', label: 'Crear Respuesta', icon: MessageSquare },
-                { to: '/roles/new', label: 'Crear Rol (cat.)', icon: Shield },
-                { to: '/permissions/new', label: 'Crear Permiso', icon: CheckSquare },
-                { to: '/role-permissions/new', label: 'Asignar Permiso', icon: CheckSquare },
-              ].map((action) => (
+              {QUICK_ACTIONS.map((action) => (
                 <Button
                   key={action.to}
                   component={Link}
@@ -395,27 +389,15 @@ const Dashboard: React.FC = () => {
             </Box>
           </CardContent>
         </Card>
-      ) : (
+      );
+    } else {
+      return (
         <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
           <h3 className="text-base font-semibold text-gray-900 mb-5 tracking-tight">
             Acciones Rápidas
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-            {[
-              { to: '/users/new', label: 'Crear Usuario', icon: UserPlus },
-              { to: '/profiles/new', label: 'Crear Perfil', icon: FilePlus },
-              { to: '/sessions/new', label: 'Nueva Sesión', icon: Key },
-              { to: '/user-roles/new', label: 'Asignar Rol', icon: Target },
-              { to: '/addresses/create', label: 'Crear Dirección', icon: MapPin },
-              { to: '/digital-signatures/new', label: 'Crear Firma', icon: PenTool },
-              { to: '/devices/new', label: 'Registrar Dispositivo', icon: Monitor },
-              { to: '/passwords/new', label: 'Nueva Contraseña', icon: Key },
-              { to: '/security-questions/new', label: 'Crear Pregunta', icon: HelpCircle },
-              { to: '/answers/new', label: 'Crear Respuesta', icon: MessageSquare },
-              { to: '/roles/new', label: 'Crear Rol (cat.)', icon: Shield },
-              { to: '/permissions/new', label: 'Crear Permiso', icon: CheckSquare },
-              { to: '/role-permissions/new', label: 'Asignar Permiso', icon: CheckSquare },
-            ].map((action) => (
+            {QUICK_ACTIONS.map((action) => (
               <Link
                 key={action.to}
                 to={action.to}
@@ -427,7 +409,14 @@ const Dashboard: React.FC = () => {
             ))}
           </div>
         </div>
-      )}
+      );
+    }
+  };
+
+  return (
+    <Layout>
+      {renderCards()}
+      {renderQuickActions()}
     </Layout>
   );
 };

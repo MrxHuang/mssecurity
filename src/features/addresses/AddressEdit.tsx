@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
+import { useNotifications } from '../../utils/notifications';
 
 type AddressInput = {
   user_id: string;
@@ -16,6 +17,7 @@ const AddressEdit: React.FC = () => {
   const navigate = useNavigate();
   const isNew = id === 'new';
   const [value, setValue] = useState<AddressInput>({ user_id: '', street: '', number: '', latitude: '', longitude: '' });
+  const { showError, showSuccess } = useNotifications();
 
   useEffect(() => {
     if (!isNew) {
@@ -24,23 +26,25 @@ const AddressEdit: React.FC = () => {
           const { data } = await apiClient.get(`/api/addresses/${id}`);
           setValue({ user_id: String(data.user_id), street: data.street || '', number: data.number || '', latitude: data.latitude || '', longitude: data.longitude || '' });
         } catch {
-          alert('Error al cargar la dirección');
+          showError('Error al cargar la dirección');
         }
       })();
     }
-  }, [id, isNew]);
+  }, [id, isNew, showError]);
 
   const save = async () => {
     try {
       const payload = { street: value.street, number: value.number, latitude: value.latitude, longitude: value.longitude };
       if (isNew) {
         await apiClient.post(`/api/addresses/user/${value.user_id}`, payload);
+        showSuccess('Dirección creada correctamente');
       } else {
         await apiClient.put(`/api/addresses/${id}`, payload);
+        showSuccess('Dirección actualizada correctamente');
       }
       navigate('/addresses');
     } catch {
-      alert('Error al guardar la dirección');
+      showError('Error al guardar la dirección');
     }
   };
 

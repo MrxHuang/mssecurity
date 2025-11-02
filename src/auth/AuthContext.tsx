@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { auth, googleProvider, githubProvider, microsoftProvider } from './firebase';
 import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
+import { useNotifications } from '../utils/notifications';
 
 type AuthContextValue = {
   user: User | null;
@@ -18,6 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { showError, showWarning } = useNotifications();
 
   const SESSION_TIMEOUT = 30 * 60 * 1000;
   const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -35,10 +37,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (user) {
       timeoutRef.current = setTimeout(async () => {
         await logout();
-        alert('Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente.');
+        showWarning('Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente.');
       }, SESSION_TIMEOUT);
     }
-  }, [user]);
+  }, [user, showWarning]);
 
   useEffect(() => {
     if (!user) {
@@ -112,13 +114,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, googleProvider);
     } catch (error: any) {
       if (error.code === 'auth/popup-blocked') {
-        alert('Por favor, permite ventanas emergentes en tu navegador para iniciar sesión.');
+        showWarning('Por favor, permite ventanas emergentes en tu navegador para iniciar sesión.');
       } else if (error.code === 'auth/popup-closed-by-user') {
         // Usuario cerró la ventana, no mostrar error
       } else if (error.code === 'auth/network-request-failed') {
-        alert('Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente.');
+        showError('Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente.');
       } else {
-        alert(`No se pudo iniciar sesión con Google. ${error.message || 'Por favor, intenta nuevamente.'}`);
+        showError(`No se pudo iniciar sesión con Google. ${error.message || 'Por favor, intenta nuevamente.'}`);
       }
       throw error;
     }
@@ -129,13 +131,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await signInWithPopup(auth, githubProvider);
     } catch (error: any) {
       if (error.code === 'auth/popup-blocked') {
-        alert('Por favor, permite ventanas emergentes en tu navegador para iniciar sesión.');
+        showWarning('Por favor, permite ventanas emergentes en tu navegador para iniciar sesión.');
       } else if (error.code === 'auth/popup-closed-by-user') {
         // Usuario cerró la ventana, no mostrar error
       } else if (error.code === 'auth/network-request-failed') {
-        alert('Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente.');
+        showError('Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente.');
       } else {
-        alert(`No se pudo iniciar sesión con GitHub. ${error.message || 'Por favor, intenta nuevamente.'}`);
+        showError(`No se pudo iniciar sesión con GitHub. ${error.message || 'Por favor, intenta nuevamente.'}`);
       }
       throw error;
     }
@@ -147,18 +149,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await result.user.getIdToken();
     } catch (error: any) {
       if (error.code === 'auth/popup-blocked') {
-        alert('Por favor, permite ventanas emergentes en tu navegador para iniciar sesión con Microsoft.');
+        showWarning('Por favor, permite ventanas emergentes en tu navegador para iniciar sesión con Microsoft.');
       } else if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         // Usuario cerró o canceló la ventana, no mostrar error
       } else if (error.code === 'auth/unauthorized-domain') {
-        alert('Este dominio no está autorizado en Firebase. Contacta al administrador del sistema para agregar tu dominio.');
+        showError('Este dominio no está autorizado en Firebase. Contacta al administrador del sistema para agregar tu dominio.');
       } else if (error.code === 'auth/operation-not-allowed') {
-        alert('El proveedor de Microsoft no está habilitado. Contacta al administrador del sistema.');
+        showError('El proveedor de Microsoft no está habilitado. Contacta al administrador del sistema.');
       } else if (error.code === 'auth/account-exists-with-different-credential') {
-        alert('Esta cuenta ya está registrada con otro método de inicio de sesión. Por favor, usa el mismo método que utilizaste anteriormente.');
+        showWarning('Esta cuenta ya está registrada con otro método de inicio de sesión. Por favor, usa el mismo método que utilizaste anteriormente.');
       } else if (error.code === 'auth/invalid-credential') {
         if (error.message.includes('AADSTS7000215') || error.message.includes('Invalid client secret')) {
-          alert('Error de configuración de Microsoft:\n\n' +
+          showError('Error de configuración de Microsoft:\n\n' +
                 'El Client Secret configurado es incorrecto.\n\n' +
                 'Para solucionarlo:\n' +
                 '1. Ve a Firebase Console → Authentication → Sign-in method → Microsoft\n' +
@@ -166,12 +168,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 '3. Pégalo en Firebase como "Application client secret"\n' +
                 '4. Guarda los cambios');
         } else {
-          alert('Credenciales inválidas. Por favor, verifica tus datos e intenta nuevamente.');
+          showError('Credenciales inválidas. Por favor, verifica tus datos e intenta nuevamente.');
         }
       } else if (error.code === 'auth/network-request-failed') {
-        alert('Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente.');
+        showError('Error de conexión. Por favor, verifica tu conexión a internet e intenta nuevamente.');
       } else {
-        alert(`No se pudo iniciar sesión con Microsoft. ${error.message || 'Por favor, intenta nuevamente.'}`);
+        showError(`No se pudo iniciar sesión con Microsoft. ${error.message || 'Por favor, intenta nuevamente.'}`);
       }
       throw error;
     }

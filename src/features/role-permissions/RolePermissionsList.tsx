@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
+import { useNotifications } from '../../utils/notifications';
 
 type RolePermission = {
   id: number;
@@ -10,13 +11,14 @@ type RolePermission = {
 
 const RolePermissionsList: React.FC = () => {
   const [rows, setRows] = useState<RolePermission[]>([]);
+  const { showError, showSuccess } = useNotifications();
 
   const load = async () => {
     try {
       const { data } = await apiClient.get('/api/role-permissions/');
       setRows(data);
     } catch (err) {
-      alert('Error al cargar la relación rol-permiso');
+      showError('Error al cargar la relación rol-permiso');
     }
   };
 
@@ -26,9 +28,10 @@ const RolePermissionsList: React.FC = () => {
     if (!confirm('¿Eliminar esta relación rol-permiso?')) return;
     try {
       await apiClient.delete(`/api/role-permissions/${row.id}`);
+      showSuccess('Relación eliminada correctamente');
       await load();
     } catch (err) {
-      alert('Error al eliminar la relación');
+      showError('Error al eliminar la relación');
     }
   };
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import GenericForm from '../../components/generic/GenericForm';
 import apiClient from '../../lib/api';
+import { useNotifications } from '../../utils/notifications';
 
 type ProfileInput = {
   phone: string;
@@ -13,6 +14,7 @@ const ProfileUpdateMock: React.FC = () => {
   const navigate = useNavigate();
   const isNew = false;
   const [value, setValue] = useState<ProfileInput>({ phone: '', photo: '' });
+  const { showError, showSuccess } = useNotifications();
 
   useEffect(() => {
     (async () => {
@@ -20,17 +22,18 @@ const ProfileUpdateMock: React.FC = () => {
         const { data } = await apiClient.get(`/api/profiles/${id}`);
         setValue({ phone: data.phone || '', photo: data.photo || '' });
       } catch {
-        alert('Error al cargar el perfil');
+        showError('Error al cargar el perfil');
       }
     })();
-  }, [id]);
+  }, [id, showError]);
 
   const save = async () => {
     try {
       await apiClient.put(`/api/profiles/${id}`, value);
+      showSuccess('Perfil actualizado correctamente');
       navigate(`/profile/${id}`);
     } catch {
-      alert('Error al guardar el perfil');
+      showError('Error al guardar el perfil');
     }
   };
 

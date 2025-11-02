@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
+import { useNotifications } from '../../utils/notifications';
 
 type UserRoleInput = {
   user_id: string;
@@ -20,6 +21,7 @@ const UserRoleEdit: React.FC = () => {
     startAt: new Date().toISOString().split('T')[0],
     endAt: '',
   });
+  const { showError, showSuccess, showWarning } = useNotifications();
 
   useEffect(() => {
     if (!isNew) {
@@ -33,27 +35,27 @@ const UserRoleEdit: React.FC = () => {
             endAt: data.endAt?.split('T')[0] || '',
           });
         } catch (err) {
-          alert('Error al cargar la asignación de rol');
+          showError('Error al cargar la asignación de rol');
         }
       })();
     }
-  }, [id, isNew]);
+  }, [id, isNew, showError]);
 
   const save = async () => {
     try {
       if (isNew) {
         if (!value.user_id || value.user_id.trim() === '') {
-          alert('El User ID es obligatorio');
+          showWarning('El User ID es obligatorio');
           return;
         }
         if (!value.role_id || value.role_id.trim() === '') {
-          alert('El Role ID es obligatorio');
+          showWarning('El Role ID es obligatorio');
           return;
         }
       }
       
       if (!value.startAt) {
-        alert('La fecha de inicio es obligatoria');
+        showWarning('La fecha de inicio es obligatoria');
         return;
       }
       
@@ -67,8 +69,10 @@ const UserRoleEdit: React.FC = () => {
       
       if (isNew) {
         await apiClient.post(`/api/user-roles/user/${value.user_id}/role/${value.role_id}`, payload);
+        showSuccess('Rol asignado correctamente');
       } else {
         await apiClient.put(`/api/user-roles/${id}`, payload);
+        showSuccess('Asignación actualizada correctamente');
       }
       navigate('/user-roles');
     } catch (err: any) {
@@ -84,7 +88,7 @@ const UserRoleEdit: React.FC = () => {
         errorMsg = err.message;
       }
       
-      alert(errorMsg);
+      showError(errorMsg);
     }
   };
 

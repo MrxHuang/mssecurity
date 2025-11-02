@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
+import { useNotifications } from '../../utils/notifications';
 
 type User = {
   id: number;
@@ -10,13 +11,18 @@ type User = {
 
 const UsersList: React.FC = () => {
   const [rows, setRows] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { showError, showSuccess } = useNotifications();
 
   const load = async () => {
     try {
+      setLoading(true);
       const { data } = await apiClient.get('/api/users/');
       setRows(data);
     } catch (err) {
-      alert('Error al cargar los usuarios');
+      showError('Error al cargar los usuarios');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -26,9 +32,10 @@ const UsersList: React.FC = () => {
     if (!confirm(`¿Eliminar usuario ${row.name}?`)) return;
     try {
       await apiClient.delete(`/api/users/${row.id}`);
+      showSuccess('Usuario eliminado correctamente');
       await load();
     } catch (err) {
-      alert('Error al eliminar el usuario');
+      showError('Error al eliminar el usuario');
     }
   };
 

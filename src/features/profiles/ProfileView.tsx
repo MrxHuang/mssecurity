@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericDetailView from '../../components/generic/GenericDetailView';
 import { formatDate } from '../../utils/dateFormatter';
+import { useNotifications } from '../../utils/notifications';
 
 type ProfileData = {
   id: number;
@@ -18,6 +19,7 @@ const ProfileView: React.FC = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const { showError } = useNotifications();
 
   useEffect(() => {
     (async () => {
@@ -30,12 +32,12 @@ const ProfileView: React.FC = () => {
           setUser({ name: u.name, email: u.email });
         }
       } catch (err: any) {
-        alert(err.response?.data?.error || 'Error al cargar el perfil');
+        showError(err.response?.data?.error || 'Error al cargar el perfil');
       } finally {
         setLoading(false);
       }
     })();
-  }, [id]);
+  }, [id, showError]);
 
   if (loading || !profile || !user) {
     return (

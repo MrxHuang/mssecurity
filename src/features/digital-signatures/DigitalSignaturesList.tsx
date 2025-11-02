@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
+import { useNotifications } from '../../utils/notifications';
 
 type DigitalSignature = {
   id: number;
@@ -10,13 +11,14 @@ type DigitalSignature = {
 
 const DigitalSignaturesList: React.FC = () => {
   const [rows, setRows] = useState<DigitalSignature[]>([]);
+  const { showError, showSuccess } = useNotifications();
 
   const load = async () => {
     try {
       const { data } = await apiClient.get('/api/digital-signatures/');
       setRows(data);
     } catch (err) {
-      alert('Error al cargar las firmas digitales');
+      showError('Error al cargar las firmas digitales');
     }
   };
 
@@ -26,9 +28,10 @@ const DigitalSignaturesList: React.FC = () => {
     if (!confirm('¿Eliminar esta firma digital?')) return;
     try {
       await apiClient.delete(`/api/digital-signatures/${row.id}`);
+      showSuccess('Firma digital eliminada correctamente');
       await load();
     } catch (err) {
-      alert('Error al eliminar la firma digital');
+      showError('Error al eliminar la firma digital');
     }
   };
 

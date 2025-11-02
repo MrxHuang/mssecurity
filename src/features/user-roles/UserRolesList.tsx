@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
 import { formatDateOnly } from '../../utils/dateFormatter';
+import { useNotifications } from '../../utils/notifications';
 
 type UserRole = {
   id: string;
@@ -13,13 +14,14 @@ type UserRole = {
 
 const UserRolesList: React.FC = () => {
   const [rows, setRows] = useState<UserRole[]>([]);
+  const { showError, showSuccess } = useNotifications();
 
   const load = async () => {
     try {
       const { data } = await apiClient.get('/api/user-roles/');
       setRows(data);
     } catch (err) {
-      alert('Error al cargar las asignaciones de roles');
+      showError('Error al cargar las asignaciones de roles');
     }
   };
 
@@ -29,9 +31,10 @@ const UserRolesList: React.FC = () => {
     if (!confirm('¿Eliminar esta asignación usuario-rol?')) return;
     try {
       await apiClient.delete(`/api/user-roles/${row.id}`);
+      showSuccess('Asignación eliminada correctamente');
       await load();
     } catch (err) {
-      alert('Error al eliminar la asignación');
+      showError('Error al eliminar la asignación');
     }
   };
 

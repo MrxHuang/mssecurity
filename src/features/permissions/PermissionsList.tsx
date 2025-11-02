@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../lib/api';
 import GenericList from '../../components/generic/GenericList';
+import { useNotifications } from '../../utils/notifications';
 
 type Permission = {
   id: number;
@@ -11,13 +12,14 @@ type Permission = {
 
 const PermissionsList: React.FC = () => {
   const [rows, setRows] = useState<Permission[]>([]);
+  const { showError, showSuccess } = useNotifications();
 
   const load = async () => {
     try {
       const { data } = await apiClient.get('/api/permissions/');
       setRows(data);
     } catch (err) {
-      alert('Error al cargar los permisos');
+      showError('Error al cargar los permisos');
     }
   };
 
@@ -27,9 +29,10 @@ const PermissionsList: React.FC = () => {
     if (!confirm('¿Eliminar este permiso?')) return;
     try {
       await apiClient.delete(`/api/permissions/${row.id}`);
+      showSuccess('Permiso eliminado correctamente');
       await load();
     } catch (err) {
-      alert('Error al eliminar el permiso');
+      showError('Error al eliminar el permiso');
     }
   };
 

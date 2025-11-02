@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
+import { useNotifications } from '../../utils/notifications';
 
 type RoleInput = {
   name: string;
@@ -13,6 +14,7 @@ const RoleEdit: React.FC = () => {
   const navigate = useNavigate();
   const isNew = id === 'new';
   const [value, setValue] = useState<RoleInput>({ name: '', description: '' });
+  const { showError, showSuccess } = useNotifications();
 
   useEffect(() => {
     if (!isNew) {
@@ -21,22 +23,24 @@ const RoleEdit: React.FC = () => {
           const { data } = await apiClient.get(`/api/roles/${id}`);
           setValue({ name: data.name || '', description: data.description || '' });
         } catch {
-          alert('Error al cargar el rol');
+          showError('Error al cargar el rol');
         }
       })();
     }
-  }, [id, isNew]);
+  }, [id, isNew, showError]);
 
   const save = async () => {
     try {
       if (isNew) {
         await apiClient.post('/api/roles/', value);
+        showSuccess('Rol creado correctamente');
       } else {
         await apiClient.put(`/api/roles/${id}`, value);
+        showSuccess('Rol actualizado correctamente');
       }
       navigate('/roles');
     } catch {
-      alert('Error al guardar el rol');
+      showError('Error al guardar el rol');
     }
   };
 

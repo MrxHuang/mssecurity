@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
+import { useNotifications } from '../../utils/notifications';
 
 type RolePermissionInput = {
   role_id: string;
@@ -13,6 +14,7 @@ const RolePermissionEdit: React.FC = () => {
   const navigate = useNavigate();
   const isNew = id === 'new';
   const [value, setValue] = useState<RolePermissionInput>({ role_id: '', permission_id: '' });
+  const { showError, showSuccess } = useNotifications();
 
   useEffect(() => {
     if (!isNew) {
@@ -21,22 +23,24 @@ const RolePermissionEdit: React.FC = () => {
           const { data } = await apiClient.get(`/api/role-permissions/${id}`);
           setValue({ role_id: String(data.role_id), permission_id: String(data.permission_id) });
         } catch {
-          alert('Error al cargar la relación rol-permiso');
+          showError('Error al cargar la relación rol-permiso');
         }
       })();
     }
-  }, [id, isNew]);
+  }, [id, isNew, showError]);
 
   const save = async () => {
     try {
       if (isNew) {
         await apiClient.post(`/api/role-permissions/role/${value.role_id}/permission/${value.permission_id}`, {});
+        showSuccess('Relación rol-permiso creada correctamente');
       } else {
         await apiClient.put(`/api/role-permissions/${id}`, {});
+        showSuccess('Relación rol-permiso actualizada correctamente');
       }
       navigate('/role-permissions');
     } catch {
-      alert('Error al guardar la relación');
+      showError('Error al guardar la relación');
     }
   };
 

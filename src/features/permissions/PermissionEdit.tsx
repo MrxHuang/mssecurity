@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../../lib/api';
 import GenericForm from '../../components/generic/GenericForm';
+import { useNotifications } from '../../utils/notifications';
 
 type PermissionInput = {
   entity: string;
@@ -14,6 +15,7 @@ const PermissionEdit: React.FC = () => {
   const navigate = useNavigate();
   const isNew = id === 'new';
   const [value, setValue] = useState<PermissionInput>({ entity: '', method: 'GET', url: '' });
+  const { showError, showSuccess } = useNotifications();
 
   useEffect(() => {
     if (!isNew) {
@@ -22,22 +24,24 @@ const PermissionEdit: React.FC = () => {
           const { data } = await apiClient.get(`/api/permissions/${id}`);
           setValue({ entity: data.entity || '', method: data.method || 'GET', url: data.url || '' });
         } catch {
-          alert('Error al cargar el permiso');
+          showError('Error al cargar el permiso');
         }
       })();
     }
-  }, [id, isNew]);
+  }, [id, isNew, showError]);
 
   const save = async () => {
     try {
       if (isNew) {
         await apiClient.post('/api/permissions/', value);
+        showSuccess('Permiso creado correctamente');
       } else {
         await apiClient.put(`/api/permissions/${id}`, value);
+        showSuccess('Permiso actualizado correctamente');
       }
       navigate('/permissions');
     } catch {
-      alert('Error al guardar el permiso');
+      showError('Error al guardar el permiso');
     }
   };
 

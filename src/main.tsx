@@ -5,6 +5,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './auth/AuthContext';
 import { UiLibraryProvider } from './context/UiLibraryContext';
+import { NotificationProvider } from './utils/notifications';
 import App from './App.tsx';
 import './index.css';
 
@@ -24,11 +25,13 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <AuthProvider>
-          <UiLibraryProvider>
-            <App />
-          </UiLibraryProvider>
-        </AuthProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <UiLibraryProvider>
+              <App />
+            </UiLibraryProvider>
+          </AuthProvider>
+        </NotificationProvider>
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>
