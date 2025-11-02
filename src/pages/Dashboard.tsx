@@ -1,19 +1,92 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import { Link } from 'react-router-dom';
 import { useUiLibrary } from '../context/UiLibraryContext';
 import { Users, FileText, Lock, Shield, UserPlus, FilePlus, Key, Target, MapPin, CheckSquare, PenTool, Monitor, HelpCircle, MessageSquare } from 'lucide-react';
 import { Card, CardContent, Button, Box, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import apiClient from '../lib/api';
 
 const Dashboard: React.FC = () => {
   const { library } = useUiLibrary();
+  const [counts, setCounts] = useState({
+    users: 0,
+    profiles: 0,
+    sessions: 0,
+    userRoles: 0,
+    addresses: 0,
+    digitalSignatures: 0,
+    devices: 0,
+    passwords: 0,
+    securityQuestions: 0,
+    answers: 0,
+    roles: 0,
+    permissions: 0,
+    rolePermissions: 0,
+  });
+
+  const loadCounts = async () => {
+    try {
+      const [
+        usersRes,
+        profilesRes,
+        sessionsRes,
+        userRolesRes,
+        addressesRes,
+        digitalSignaturesRes,
+        devicesRes,
+        passwordsRes,
+        securityQuestionsRes,
+        answersRes,
+        rolesRes,
+        permissionsRes,
+        rolePermissionsRes,
+      ] = await Promise.all([
+        apiClient.get('/api/users/').catch(() => ({ data: [] })),
+        apiClient.get('/api/profiles/').catch(() => ({ data: [] })),
+        apiClient.get('/api/sessions/').catch(() => ({ data: [] })),
+        apiClient.get('/api/user-roles/').catch(() => ({ data: [] })),
+        apiClient.get('/api/addresses/').catch(() => ({ data: [] })),
+        apiClient.get('/api/digital-signatures/').catch(() => ({ data: [] })),
+        apiClient.get('/api/devices/').catch(() => ({ data: [] })),
+        apiClient.get('/api/passwords/').catch(() => ({ data: [] })),
+        apiClient.get('/api/security-questions/').catch(() => ({ data: [] })),
+        apiClient.get('/api/answers/').catch(() => ({ data: [] })),
+        apiClient.get('/api/roles/').catch(() => ({ data: [] })),
+        apiClient.get('/api/permissions/').catch(() => ({ data: [] })),
+        apiClient.get('/api/role-permissions/').catch(() => ({ data: [] })),
+      ]);
+
+      setCounts({
+        users: Array.isArray(usersRes.data) ? usersRes.data.length : 0,
+        profiles: Array.isArray(profilesRes.data) ? profilesRes.data.length : 0,
+        sessions: Array.isArray(sessionsRes.data) ? sessionsRes.data.length : 0,
+        userRoles: Array.isArray(userRolesRes.data) ? userRolesRes.data.length : 0,
+        addresses: Array.isArray(addressesRes.data) ? addressesRes.data.length : 0,
+        digitalSignatures: Array.isArray(digitalSignaturesRes.data) ? digitalSignaturesRes.data.length : 0,
+        devices: Array.isArray(devicesRes.data) ? devicesRes.data.length : 0,
+        passwords: Array.isArray(passwordsRes.data) ? passwordsRes.data.length : 0,
+        securityQuestions: Array.isArray(securityQuestionsRes.data) ? securityQuestionsRes.data.length : 0,
+        answers: Array.isArray(answersRes.data) ? answersRes.data.length : 0,
+        roles: Array.isArray(rolesRes.data) ? rolesRes.data.length : 0,
+        permissions: Array.isArray(permissionsRes.data) ? permissionsRes.data.length : 0,
+        rolePermissions: Array.isArray(rolePermissionsRes.data) ? rolePermissionsRes.data.length : 0,
+      });
+    } catch (error) {
+      console.error('Error al cargar los conteos:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadCounts();
+  }, []);
+
   const cards = [
     { 
       to: '/users', 
       title: 'Usuarios', 
       desc: 'Gestión de usuarios del sistema',
-      count: '3',
+      count: counts.users.toString(),
       icon: Users,
       color: '#1a1a1a'
     },
@@ -21,7 +94,7 @@ const Dashboard: React.FC = () => {
       to: '/profiles', 
       title: 'Perfiles', 
       desc: 'Perfiles de usuario (1:1)',
-      count: '3',
+      count: counts.profiles.toString(),
       icon: FileText,
       color: '#2a2a2a'
     },
@@ -29,7 +102,7 @@ const Dashboard: React.FC = () => {
       to: '/sessions', 
       title: 'Sesiones', 
       desc: 'Sesiones activas (1:N)',
-      count: '6',
+      count: counts.sessions.toString(),
       icon: Lock,
       color: '#3a3a3a'
     },
@@ -37,7 +110,7 @@ const Dashboard: React.FC = () => {
       to: '/user-roles', 
       title: 'Roles', 
       desc: 'Asignación de roles (N:N)',
-      count: '3',
+      count: counts.userRoles.toString(),
       icon: Shield,
       color: '#4a4a4a'
     },
@@ -45,7 +118,7 @@ const Dashboard: React.FC = () => {
       to: '/addresses', 
       title: 'Direcciones', 
       desc: 'Direcciones de usuarios (1:1)',
-      count: '3',
+      count: counts.addresses.toString(),
       icon: MapPin,
       color: '#5a5a5a'
     },
@@ -53,7 +126,7 @@ const Dashboard: React.FC = () => {
       to: '/digital-signatures', 
       title: 'Firmas', 
       desc: 'Firmas digitales de usuarios',
-      count: '3',
+      count: counts.digitalSignatures.toString(),
       icon: PenTool,
       color: '#6a6a6a'
     },
@@ -61,7 +134,7 @@ const Dashboard: React.FC = () => {
       to: '/devices', 
       title: 'Dispositivos', 
       desc: 'Dispositivos registrados',
-      count: '6',
+      count: counts.devices.toString(),
       icon: Monitor,
       color: '#7a7a7a'
     },
@@ -69,7 +142,7 @@ const Dashboard: React.FC = () => {
       to: '/passwords', 
       title: 'Contraseñas', 
       desc: 'Gestión de contraseñas',
-      count: '3',
+      count: counts.passwords.toString(),
       icon: Key,
       color: '#8a8a8a'
     },
@@ -77,7 +150,7 @@ const Dashboard: React.FC = () => {
       to: '/security-questions', 
       title: 'Preguntas', 
       desc: 'Preguntas de seguridad',
-      count: '9',
+      count: counts.securityQuestions.toString(),
       icon: HelpCircle,
       color: '#9a9a9a'
     },
@@ -85,7 +158,7 @@ const Dashboard: React.FC = () => {
       to: '/answers', 
       title: 'Respuestas', 
       desc: 'Respuestas de seguridad',
-      count: '9',
+      count: counts.answers.toString(),
       icon: MessageSquare,
       color: '#aa9a9a'
     },
@@ -93,7 +166,7 @@ const Dashboard: React.FC = () => {
       to: '/roles', 
       title: 'Roles (cat.)', 
       desc: 'Categorías de roles',
-      count: '3',
+      count: counts.roles.toString(),
       icon: Shield,
       color: '#ba9a9a'
     },
@@ -101,7 +174,7 @@ const Dashboard: React.FC = () => {
       to: '/permissions', 
       title: 'Permisos', 
       desc: 'Reglas de acceso a endpoints',
-      count: '9',
+      count: counts.permissions.toString(),
       icon: CheckSquare,
       color: '#ca9a9a'
     },
@@ -109,7 +182,7 @@ const Dashboard: React.FC = () => {
       to: '/role-permissions', 
       title: 'Rol ↔ Permiso', 
       desc: 'Asignación de permisos a roles',
-      count: '12',
+      count: counts.rolePermissions.toString(),
       icon: CheckSquare,
       color: '#da9a9a'
     },
