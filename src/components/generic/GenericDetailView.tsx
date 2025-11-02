@@ -74,7 +74,7 @@ function GenericDetailView({
 
     return (
       <Avatar
-        size={library === 'mui' ? 320 : library === 'bootstrap' ? 280 : 300}
+        size={library === 'bootstrap' ? 280 : 300}
         name={imageFallback || 'User'}
         variant="marble"
         colors={avatarColors}
